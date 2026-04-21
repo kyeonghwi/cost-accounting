@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
+  // @AX:NOTE [AUTO] SEED_PROFILE defaults to 'small'; use 'full' for 5-HQ 12-month dataset
   const profile = process.env.SEED_PROFILE ?? 'small'
   console.log(`Seeding with profile: ${profile}`)
 

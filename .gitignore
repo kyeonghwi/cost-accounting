@@ -14,6 +14,12 @@ node_modules/
 # Prisma
 prisma/migrations/dev.db
 
+# TypeScript build cache
+*.tsbuildinfo
+
+# Windows crash dumps
+*.stackdump
+
 # Autopus-ADK generated files
 .claude/rules/autopus/
 .claude/skills/autopus/

@@ -8,6 +8,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      // @AX:NOTE [AUTO] coverage scope intentionally limited to lib/; app/ components tested via Playwright only
       include: ['lib/**/*.ts'],
       exclude: ['lib/utils.ts'],
     },

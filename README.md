@@ -20,7 +20,7 @@ job-order costing, overhead allocation, variance analysis, and contribution marg
 ### Architecture overview
 
 ```
-Browser → Next.js App Router → Route Handlers → Prisma ORM → SQLite (dev) / PostgreSQL (prod)
+Browser → Next.js App Router → Route Handlers → Prisma ORM → PostgreSQL
                                                 ↓
                                         lib/engines/   (pure TypeScript, framework-free)
 ```
@@ -46,7 +46,7 @@ and `docs/variance-algorithm.md` for the mathematical specification.
 # 1. Install dependencies
 pnpm install
 
-# 2. Set up the database (SQLite, no external server needed)
+# 2. Set up the database (PostgreSQL required — local install or Docker)
 pnpm db:migrate
 pnpm db:seed
 

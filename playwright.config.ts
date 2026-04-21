@@ -17,6 +17,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+  // @AX:NOTE [AUTO] webServer.reuseExistingServer=true in dev; always starts fresh in CI
   webServer: {
     command: 'pnpm dev',
     url: 'http://localhost:3000',

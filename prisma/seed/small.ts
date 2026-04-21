@@ -19,6 +19,7 @@ const IDS = {
 
 const RATE_EFFECTIVE = new Date('2024-01-01T00:00:00.000Z')
 
+// @AX:NOTE [AUTO] all upserts keyed on id (cuid) so re-running seed is safe
 export async function seedSmall(prisma: PrismaClient): Promise<void> {
   // Organizations
   await prisma.organization.upsert({

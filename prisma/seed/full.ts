@@ -20,6 +20,9 @@ function pad(n: number, width = 3): string {
   return String(n).padStart(width, '0')
 }
 
+// @AX:NOTE [AUTO] all upserts keyed on id (cuid) so re-running seed is safe
+// @AX:WARN [AUTO] file approaching 300-line limit
+// @AX:REASON: will exceed 300 lines if TransferEntry or AllocationResult sections grow; split by domain (transfers.ts, allocation-runs.ts) before that threshold
 export async function seedFull(prisma: PrismaClient): Promise<void> {
   // Enterprise
   const enterpriseId = 'full-org-ent-001'
@@ -240,6 +243,7 @@ export async function seedFull(prisma: PrismaClient): Promise<void> {
       id: 'full-run-001',
       periodId: periodIds[0],
       method: AllocationMethod.STEP_DOWN,
+      // @AX:NOTE [AUTO] inputChecksum/outputChecksum are seed placeholders; real values computed in T4 allocation runner
       inputChecksum: 'sha256-input-placeholder',
       outputChecksum: 'sha256-output-placeholder',
       runtimeMs: 120,
