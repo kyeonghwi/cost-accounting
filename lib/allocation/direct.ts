@@ -41,6 +41,8 @@ function weightOf(target: DirectTarget, key: AllocationKey): Decimal {
  *  - Output preserves input target order (deterministic)
  *  - Pure function: no I/O, no Prisma
  */
+// @AX:ANCHOR: [AUTO] public API contract — primary allocation primitive called by stepDown.ts, runner.ts (x2), and integration tests; signature and sum-conservation guarantee (REQ-ALLOC-01) must be preserved
+// @AX:REASON: fan_in >= 3 across production callers; any signature change or behavioral regression breaks multiple allocation paths simultaneously
 export function directAllocate(
   pool: Decimal,
   rule: AllocationRule,

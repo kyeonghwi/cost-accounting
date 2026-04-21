@@ -1,6 +1,7 @@
 import { Decimal } from '@prisma/client/runtime/library'
 import type { VarianceComponents } from './decompose'
 
+// @AX:NOTE: [AUTO] magic constant — 0.001 (0.1%) tolerance is the domain-standard threshold for variance reconciliation; tightening to 0 would reject valid floating-point residuals from the linear model
 /** Maximum allowed ratio of |residual| to |totalVariance|. */
 const MAX_RESIDUAL_RATIO = new Decimal('0.001')
 

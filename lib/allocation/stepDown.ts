@@ -14,6 +14,7 @@ export interface StepDownResult {
   amount: Decimal
 }
 
+// @AX:NOTE: [AUTO] magic constant — DEFAULT_RULE hardcodes HEADCOUNT as the step-down allocation key; if future step-down rules require per-pool keys this fallback will silently override them
 const DEFAULT_RULE: AllocationRule = { allocationKey: 'HEADCOUNT' }
 
 /**
@@ -35,6 +36,8 @@ const DEFAULT_RULE: AllocationRule = { allocationKey: 'HEADCOUNT' }
  *                 distribution per step.)
  * @param targets Operating department targets receiving allocations.
  */
+// @AX:ANCHOR: [AUTO] public API contract — step-down entry point called by runner.ts and integration tests; no-feedback invariant (service depts never receive charges) must be preserved
+// @AX:REASON: fan_in >= 3 (runner.ts, stepDown.test.ts, integration test); behavioral contract underpins REQ-ALLOC-03
 export function stepDownAllocate(
   pools: Pool[],
   sequence: string[],

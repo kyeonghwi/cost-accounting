@@ -41,6 +41,8 @@ export async function loadPoolAmounts(
   })
   const poolOrgIds = Array.from(new Set(rules.map((r) => r.poolOrgId))).sort()
 
+  // @AX:WARN: [AUTO] N+1 query pattern — one aggregate query per pool org; with N service departments this issues N sequential DB round-trips; replace with a single groupBy query when pool count grows
+  // @AX:REASON: acceptable for small deployments (< 20 service depts) but will degrade linearly; no pagination or batching is in place
   const pools: Pool[] = []
   for (const orgId of poolOrgIds) {
     const agg = await prisma.costEntry.aggregate({
@@ -73,6 +75,8 @@ export async function loadOperatingTargets(
     select: { id: true, ownerHqId: true },
   })
 
+  // @AX:WARN: [AUTO] N+1 query pattern — two DB calls per operating project (headcount + cost aggregate); scales with project count and will become a bottleneck for large period runs
+  // @AX:REASON: Promise.all within the loop parallelises the pair but still issues 2N total queries; replace with a single aggregate + join when project count grows beyond ~50
   const targets: DirectTarget[] = []
   for (const project of projects) {
     const [headcountAgg, costAgg] = await Promise.all([

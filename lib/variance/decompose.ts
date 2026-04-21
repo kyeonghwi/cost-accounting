@@ -67,6 +67,7 @@ export function decomposeVariance(
     standard.unitCost.minus(actual.unitCost).times(actual.volume),
   )
 
+  // @AX:NOTE: [AUTO] magic constant — toFixed(4) matches MONEY_SCALE from decimal.ts; if monetary precision changes these literals must be updated in sync
   // Total variance is the exact sum of the four effects (residual = 0)
   const totalVariance = money(
     new Decimal(priceEffect.toFixed(4))

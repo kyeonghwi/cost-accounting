@@ -47,6 +47,8 @@ export interface ChecksumInputRule {
  * Compute the input checksum: a stable hash over the sorted set of pool
  * amounts and allocation rules that drive the run.
  */
+// @AX:ANCHOR: [AUTO] public API contract — deterministic input checksum consumed by runner.ts and integration tests for REQ-ALLOC-04; output format is stored in DB and must remain stable across releases
+// @AX:REASON: fan_in >= 3 (runner.ts, allocation-determinism.test.ts x2); changing sort order or serialization format invalidates stored checksums
 export function checksumInput(
   entries: ChecksumInputEntry[],
   rules: ChecksumInputRule[],
@@ -66,6 +68,8 @@ export interface ChecksumOutputResult {
  * Compute the output checksum over allocation results, sorted by
  * (fromPoolOrgId, toProjectId) so input order does not affect the digest.
  */
+// @AX:ANCHOR: [AUTO] public API contract — deterministic output checksum stored in AllocationRun.outputChecksum; sort key (fromPoolOrgId, toProjectId) is the canonical ordering contract
+// @AX:REASON: fan_in >= 3 (runner.ts, allocation-determinism.test.ts x2); stored digest breaks if sort or serialization changes
 export function checksumOutput(results: ChecksumOutputResult[]): string {
   const sorted = [...results].sort((a, b) => {
     const c = a.fromPoolOrgId.localeCompare(b.fromPoolOrgId)

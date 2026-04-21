@@ -1,5 +1,8 @@
 import { Decimal } from '@prisma/client/runtime/library'
 
+// @AX:NOTE: [AUTO] magic constant — precision=28 chosen to exceed double-float (15-17 sig digits) with headroom for intermediate products; MONEY_SCALE=4 matches @db.Decimal(18,4) schema
+// @AX:WARN: [AUTO] global state mutation — Decimal.set() modifies the shared Decimal class; importing this module has side-effects for all Decimal operations in the process
+// @AX:REASON: side-effect on import breaks test isolation and can silently affect other numeric libraries using Prisma's Decimal
 // Configure Decimal precision and rounding mode globally for the allocation engine.
 // ROUND_HALF_UP (4) is the conventional accounting rounding mode.
 Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_UP })
@@ -42,6 +45,8 @@ export function money(value: Decimal | string | number): Money {
   return new Money(quantized.toFixed(MONEY_SCALE))
 }
 
+// @AX:WARN: [AUTO] prototype monkey-patch — overrides Decimal.prototype.plus on the shared class; execution order and multiple imports of this module may cause double-patching or interference with other Decimal consumers
+// @AX:REASON: prototype mutation is global and permanent for the process lifetime; any library importing Decimal after this module loads will see the patched behavior
 // Patch Decimal.prototype.plus so Money propagates through reduce-style accumulations
 // where the initial accumulator may be a plain `new Decimal('0')`.
 // Only activates when at least one operand is a Money instance.
@@ -80,6 +85,8 @@ export const toMoney = (value: Decimal): Money => money(value)
  * the post-condition without changing the relative proportions of earlier
  * buckets (within rounding tolerance).
  */
+// @AX:ANCHOR: [AUTO] public API contract — guarantees sum(allocated) === pool exactly; callers in direct.ts rely on this post-condition for REQ-ALLOC-01 conservation
+// @AX:REASON: fan_in >= 3 (direct.ts x2, stepDown.ts via directAllocate, integration tests); signature and post-condition must not change without updating all allocation callers
 export function lastStepAdjust(pool: Decimal, allocated: Decimal[]): Money[] {
   if (allocated.length === 0) return []
   const quantized = allocated.map(toMoney)

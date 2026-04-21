@@ -33,6 +33,8 @@ export async function runAllocation(
 ): Promise<AllocationRun> {
   const startedAt = Date.now()
 
+  // @AX:WARN: [AUTO] Promise.all without per-promise error handling — if any loader rejects the entire Promise.all rejects, losing context about which query failed
+  // @AX:REASON: in a DB-failure scenario the error message will not indicate which of the three queries failed; wrap in individual try/catch or use Promise.allSettled if partial-failure diagnosis is needed
   const [rules, poolAmounts, targets] = await Promise.all([
     loadAllocationRules(prisma),
     loadPoolAmounts(prisma, periodId),
@@ -60,6 +62,7 @@ export async function runAllocation(
   }))
   const outputChecksum = checksumOutput(outputForChecksum)
 
+  // @AX:NOTE: [AUTO] runtimeMs includes DB query time but NOT transaction commit time; the stopwatch is taken before the $transaction call, so commit latency is excluded from REQ-ALLOC-05 measurement
   const runtimeMs = Date.now() - startedAt
 
   const run = await prisma.$transaction(async (tx) => {
