@@ -50,15 +50,20 @@ export function money(value: Decimal | string | number): Money {
 // Patch Decimal.prototype.plus so Money propagates through reduce-style accumulations
 // where the initial accumulator may be a plain `new Decimal('0')`.
 // Only activates when at least one operand is a Money instance.
-const _decPlus = Decimal.prototype.plus;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- prototype patch requires any; typed cast would still lose declaration merging
-(Decimal.prototype as any).plus = function (this: Decimal, n: Decimal.Value): Decimal {
-  const result = _decPlus.call(this, n) as Decimal;
-  if (this instanceof Money || (typeof n === 'object' && n !== null && n instanceof Money)) {
-    return new Money(result.toFixed(MONEY_SCALE));
-  }
-  return result;
-};
+if (!(Decimal.prototype as any).__moneyPatched) {
+  const _decPlus = Decimal.prototype.plus;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- prototype patch requires any; typed cast would still lose declaration merging
+  (Decimal.prototype as any).plus = function (this: Decimal, n: Decimal.Value): Decimal {
+    const result = _decPlus.call(this, n) as Decimal;
+    if (this instanceof Money || (typeof n === 'object' && n !== null && n instanceof Money)) {
+      return new Money(result.toFixed(MONEY_SCALE));
+    }
+    return result;
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (Decimal.prototype as any).__moneyPatched = true;
+}
 
 export const zero = (): Decimal => new Decimal(0)
 
