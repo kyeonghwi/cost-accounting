@@ -22,6 +22,9 @@ async function createStandardRate(formData: FormData) {
   revalidatePath('/standard-rates')
 }
 
+const INPUT_CLASS = 'rounded border border-border bg-surface px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors'
+const TH_CLASS = 'pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3'
+
 export default async function StandardRatesPage() {
   let rates: StandardRate[] = []
   let personnel: Personnel[] = []
@@ -36,7 +39,6 @@ export default async function StandardRatesPage() {
     // DB not available
   }
 
-  // Build a map for display labels
   const personnelMap = new Map(personnel.map((p) => [p.id, p.name]))
   const categoryMap = new Map(categories.map((c) => [c.id, c.code]))
   const orgMap = new Map(allOrgs.map((o) => [o.id, o.name]))
@@ -49,82 +51,61 @@ export default async function StandardRatesPage() {
 
   return (
     <div data-testid="standard-rates-page">
-      <h1 className="mb-4 text-xl font-semibold">Standard Rates</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Standard Rates</h1>
 
-      <form action={createStandardRate} className="mb-6 space-y-3 rounded border border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">New Standard Rate</h2>
+      <form action={createStandardRate} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Standard Rate</h2>
         <div className="flex flex-wrap gap-3">
-          <select name="scope" required className="rounded border border-gray-300 px-3 py-1.5 text-sm">
+          <select name="scope" required className={INPUT_CLASS}>
             <option value="">Scope…</option>
             <option value="PERSONNEL">Personnel</option>
             <option value="CATEGORY">Category</option>
           </select>
-          <select name="targetId" required className="rounded border border-gray-300 px-3 py-1.5 text-sm">
+          <select name="targetId" required className={INPUT_CLASS}>
             <option value="">Target…</option>
             <optgroup label="Personnel">
               {personnel.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
+                <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </optgroup>
             <optgroup label="Category">
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.code}
-                </option>
+                <option key={c.id} value={c.id}>{c.code}</option>
               ))}
             </optgroup>
           </select>
-          <input
-            name="amount"
-            required
-            placeholder="Rate (e.g. 75.0000)"
-            inputMode="decimal"
-            className="w-36 rounded border border-gray-300 px-3 py-1.5 text-sm"
-          />
-          <input
-            name="effectiveFrom"
-            required
-            type="datetime-local"
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-          />
-          <input
-            name="effectiveTo"
-            type="datetime-local"
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-          />
+          <input name="amount" required placeholder="Rate (e.g. 75.0000)" inputMode="decimal" className={`w-36 ${INPUT_CLASS}`} />
+          <input name="effectiveFrom" required type="datetime-local" className={INPUT_CLASS} />
+          <input name="effectiveTo" type="datetime-local" className={INPUT_CLASS} />
         </div>
-        <button type="submit" className="rounded bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700">
+        <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
           Create
         </button>
       </form>
 
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-xs uppercase text-gray-500">
-            <th className="py-2 pr-4">Scope</th>
-            <th className="py-2 pr-4">Target</th>
-            <th className="py-2 pr-4">Rate</th>
-            <th className="py-2 pr-4">From</th>
-            <th className="py-2">To</th>
+          <tr className="border-b border-border-strong">
+            <th className={`${TH_CLASS} pr-4`}>Scope</th>
+            <th className={`${TH_CLASS} pr-4`}>Target</th>
+            <th className={`${TH_CLASS} pr-4`}>Rate</th>
+            <th className={`${TH_CLASS} pr-4`}>From</th>
+            <th className={TH_CLASS}>To</th>
           </tr>
         </thead>
         <tbody>
           {rates.map((r) => (
-            <tr key={r.id} className="border-b last:border-0">
-              <td className="py-2 pr-4">{r.scope}</td>
-              <td className="py-2 pr-4">{targetLabel(r.scope, r.targetId)}</td>
-              <td className="py-2 pr-4">{r.amount.toString()}</td>
-              <td className="py-2 pr-4">{r.effectiveFrom.toISOString().slice(0, 10)}</td>
-              <td className="py-2 text-gray-500">{r.effectiveTo?.toISOString().slice(0, 10) ?? '—'}</td>
+            <tr key={r.id} className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors">
+              <td className="py-2.5 pr-4 text-text-2">{r.scope}</td>
+              <td className="py-2.5 pr-4 font-medium text-text-1">{targetLabel(r.scope, r.targetId)}</td>
+              <td className="py-2.5 pr-4 tabular-nums text-text-2">{r.amount.toString()}</td>
+              <td className="py-2.5 pr-4 tabular-nums text-xs text-text-2">{r.effectiveFrom.toISOString().slice(0, 10)}</td>
+              <td className="py-2.5 tabular-nums text-xs text-text-3">{r.effectiveTo?.toISOString().slice(0, 10) ?? '—'}</td>
             </tr>
           ))}
           {rates.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-4 text-center text-gray-400">
-                No rates yet
-              </td>
+              <td colSpan={5} className="py-4 text-center text-xs text-text-3 italic">No rates yet</td>
             </tr>
           )}
         </tbody>

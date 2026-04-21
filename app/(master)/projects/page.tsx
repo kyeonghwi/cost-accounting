@@ -23,6 +23,9 @@ async function createProject(formData: FormData) {
   revalidatePath('/projects')
 }
 
+const INPUT_CLASS = 'rounded border border-border bg-surface px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors'
+const TH_CLASS = 'pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3'
+
 export default async function ProjectsPage() {
   let projects: ProjectWithOwner[] = []
   let hqOrgs: Organization[] = []
@@ -41,29 +44,17 @@ export default async function ProjectsPage() {
 
   return (
     <div data-testid="projects-page">
-      <h1 className="mb-4 text-xl font-semibold">Projects</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Projects</h1>
 
-      <form action={createProject} className="mb-6 space-y-3 rounded border border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">New Project</h2>
+      <form action={createProject} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Project</h2>
         <div className="flex flex-wrap gap-3">
-          <input
-            name="code"
-            required
-            placeholder="Code"
-            className="w-28 rounded border border-gray-300 px-3 py-1.5 text-sm"
-          />
-          <input
-            name="name"
-            required
-            placeholder="Name"
-            className="flex-1 rounded border border-gray-300 px-3 py-1.5 text-sm"
-          />
-          <select name="ownerHqId" required className="rounded border border-gray-300 px-3 py-1.5 text-sm">
+          <input name="code" required placeholder="Code" className={`w-28 ${INPUT_CLASS}`} />
+          <input name="name" required placeholder="Name" className={`flex-1 ${INPUT_CLASS}`} />
+          <select name="ownerHqId" required className={INPUT_CLASS}>
             <option value="">Owner HQ…</option>
             {hqOrgs.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.name}
-              </option>
+              <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
           <input
@@ -71,37 +62,37 @@ export default async function ProjectsPage() {
             required
             placeholder="Budget (e.g. 100000)"
             inputMode="decimal"
-            className="w-40 rounded border border-gray-300 px-3 py-1.5 text-sm"
+            className={`w-40 ${INPUT_CLASS}`}
           />
         </div>
-        <button type="submit" className="rounded bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700">
+        <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
           Create
         </button>
       </form>
 
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-xs uppercase text-gray-500">
-            <th className="py-2 pr-4">Code</th>
-            <th className="py-2 pr-4">Name</th>
-            <th className="py-2 pr-4">Owner HQ</th>
-            <th className="py-2">Budget</th>
+          <tr className="border-b border-border-strong">
+            <th className={`${TH_CLASS} pr-4`}>Code</th>
+            <th className={`${TH_CLASS} pr-4`}>Name</th>
+            <th className={`${TH_CLASS} pr-4`}>Owner HQ</th>
+            <th className={TH_CLASS}>Budget</th>
           </tr>
         </thead>
         <tbody>
           {projects.map((p) => (
-            <tr key={p.id} className="border-b last:border-0">
-              <td className="py-2 pr-4 font-mono text-xs">{p.code}</td>
-              <td className="py-2 pr-4">{p.name}</td>
-              <td className="py-2 pr-4 text-gray-500">{p.ownerHq.name}</td>
-              <td className="py-2">{p.budgetAmount.toString()}</td>
+            <tr key={p.id} className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors">
+              <td className="py-2.5 pr-4 font-mono text-xs text-text-2">{p.code}</td>
+              <td className="py-2.5 pr-4 font-medium text-text-1">{p.name}</td>
+              <td className="py-2.5 pr-4 text-text-2">{p.ownerHq.name}</td>
+              <td className="py-2.5 tabular-nums text-text-2">
+                ${Number(p.budgetAmount).toLocaleString('en-US', { minimumFractionDigits: 0 })}
+              </td>
             </tr>
           ))}
           {projects.length === 0 && (
             <tr>
-              <td colSpan={4} className="py-4 text-center text-gray-400">
-                No projects yet
-              </td>
+              <td colSpan={4} className="py-4 text-center text-xs text-text-3 italic">No projects yet</td>
             </tr>
           )}
         </tbody>

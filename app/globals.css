@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-bg: oklch(96.5% 0.005 255);
+  --color-surface: oklch(99.5% 0.002 255);
+  --color-surface-alt: oklch(97.5% 0.004 255);
+  --color-border: oklch(88% 0.007 255);
+  --color-border-strong: oklch(76% 0.011 255);
+  --color-text-1: oklch(14% 0.02 255);
+  --color-text-2: oklch(42% 0.015 255);
+  --color-text-3: oklch(63% 0.009 255);
+  --color-accent: oklch(38% 0.13 208);
+  --color-accent-dim: oklch(94% 0.03 208);
+  --color-accent-hover: oklch(32% 0.12 208);
+  --color-positive: oklch(42% 0.17 150);
+  --color-positive-bg: oklch(96% 0.04 150);
+  --color-negative: oklch(46% 0.19 25);
+  --color-negative-bg: oklch(96.5% 0.035 25);
+  --color-warn-bg: oklch(97.5% 0.04 65);
+  --color-warn-border: oklch(87% 0.09 65);
+  --color-warn-text: oklch(40% 0.13 60);
+}
+
+html {
+  background-color: var(--color-bg);
+}
+
+body {
+  color: var(--color-text-1);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

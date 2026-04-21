@@ -12,15 +12,15 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="bg-blue-600 text-white rounded px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+      className="inline-flex items-center gap-2 rounded bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {pending && (
-        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+        <svg className="animate-spin h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
         </svg>
       )}
-      {pending ? 'Running...' : 'Run Close'}
+      {pending ? 'Running…' : 'Run Close'}
     </button>
   )
 }
@@ -31,6 +31,10 @@ function formatYearMonth(ym: string): string {
   return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 }
 
+const LABEL_CLASS = 'block text-xs font-semibold uppercase tracking-[0.06em] text-text-3 mb-1.5'
+const SELECT_CLASS =
+  'w-full border border-border bg-surface rounded px-3 py-2 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors'
+
 type Props = { openPeriods: Period[] }
 
 export function CloseForm({ openPeriods }: Props) {
@@ -39,39 +43,47 @@ export function CloseForm({ openPeriods }: Props) {
   const canClose = persona !== 'viewer'
 
   return (
-    <section className="mb-10">
-      <h2 className="text-lg font-semibold mb-3">Run Close</h2>
+    <section>
+      <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
+        Run Close
+      </h2>
 
       {state?.ok === true && (
-        <div className="mb-4 rounded bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800 space-y-1">
-          <p>Period closed. Run ID: <code className="font-mono">{state.result.allocationRunId}</code>. Transfer entries: {state.result.transferCount}.</p>
+        <div className="mb-5 rounded border border-positive/30 bg-positive-bg px-4 py-3 text-sm text-positive space-y-1">
+          <p>
+            Period closed. Run ID:{' '}
+            <code className="font-mono text-xs bg-white/60 px-1 py-0.5 rounded">
+              {state.result.allocationRunId}
+            </code>
+            {' '}· Transfer entries: {state.result.transferCount}
+          </p>
           {state.result.emptyPool && (
-            <p className="text-amber-700">No overhead pool costs found — period closed with zero allocation results.</p>
+            <p className="text-xs" style={{ color: 'var(--color-warn-text)' }}>
+              No overhead pool costs found — period closed with zero allocation results.
+            </p>
           )}
         </div>
       )}
 
       {state?.ok === false && (
-        <div className="mb-4 rounded bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+        <div className="mb-5 rounded border border-negative/30 bg-negative-bg px-4 py-3 text-sm text-negative">
           {state.error}
         </div>
       )}
 
       {!canClose && (
-        <p className="mb-4 text-sm text-gray-500 italic">Switch to Cost Accountant persona to run a close.</p>
+        <p className="mb-4 text-xs text-text-3 italic">
+          Switch to Cost Accountant persona to run a close.
+        </p>
       )}
 
-      <form action={formAction} className={`flex flex-col gap-4 max-w-sm${!canClose ? ' opacity-50 pointer-events-none' : ''}`}>
+      <form
+        action={formAction}
+        className={`flex flex-col gap-4 max-w-sm${!canClose ? ' opacity-40 pointer-events-none' : ''}`}
+      >
         <div>
-          <label htmlFor="periodId" className="block text-sm font-medium mb-1">
-            Period
-          </label>
-          <select
-            id="periodId"
-            name="periodId"
-            required
-            className="w-full border rounded px-3 py-2 text-sm"
-          >
+          <label htmlFor="periodId" className={LABEL_CLASS}>Period</label>
+          <select id="periodId" name="periodId" required className={SELECT_CLASS}>
             <option value="">Select a period</option>
             {openPeriods.map((p) => (
               <option key={p.id} value={p.id}>
@@ -82,14 +94,8 @@ export function CloseForm({ openPeriods }: Props) {
         </div>
 
         <div>
-          <label htmlFor="method" className="block text-sm font-medium mb-1">
-            Allocation Method
-          </label>
-          <select
-            id="method"
-            name="method"
-            className="w-full border rounded px-3 py-2 text-sm"
-          >
+          <label htmlFor="method" className={LABEL_CLASS}>Allocation Method</label>
+          <select id="method" name="method" className={SELECT_CLASS}>
             <option value="DIRECT">Direct — distribute pool costs to projects</option>
             <option value="STEP_DOWN">Step-Down — allocate service depts in sequence</option>
           </select>

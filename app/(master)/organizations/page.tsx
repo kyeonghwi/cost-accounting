@@ -22,6 +22,9 @@ async function createOrganization(formData: FormData) {
   revalidatePath('/organizations')
 }
 
+const INPUT_CLASS = 'rounded border border-border bg-surface px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors'
+const TH_CLASS = 'pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3'
+
 export default async function OrganizationsPage() {
   let orgs: OrgWithParent[] = []
   let allOrgs: Organization[] = []
@@ -37,60 +40,49 @@ export default async function OrganizationsPage() {
 
   return (
     <div data-testid="organizations-page">
-      <h1 className="mb-4 text-xl font-semibold">Organizations</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Organizations</h1>
 
-      {/* Create form */}
-      <form action={createOrganization} className="mb-6 space-y-3 rounded border border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">New Organization</h2>
+      <form action={createOrganization} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Organization</h2>
         <div className="flex flex-wrap gap-3">
-          <input
-            name="name"
-            required
-            placeholder="Name"
-            className="flex-1 rounded border border-gray-300 px-3 py-1.5 text-sm"
-          />
-          <select name="kind" required className="rounded border border-gray-300 px-3 py-1.5 text-sm">
+          <input name="name" required placeholder="Name" className={`flex-1 ${INPUT_CLASS}`} />
+          <select name="kind" required className={INPUT_CLASS}>
             <option value="">Kind…</option>
             <option value="ENTERPRISE">Enterprise</option>
             <option value="HQ">HQ</option>
             <option value="DEPARTMENT">Department</option>
           </select>
-          <select name="parentId" className="rounded border border-gray-300 px-3 py-1.5 text-sm">
+          <select name="parentId" className={INPUT_CLASS}>
             <option value="">No parent</option>
             {allOrgs.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.name}
-              </option>
+              <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
         </div>
-        <button type="submit" className="rounded bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700">
+        <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
           Create
         </button>
       </form>
 
-      {/* List */}
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-xs uppercase text-gray-500">
-            <th className="py-2 pr-4">Name</th>
-            <th className="py-2 pr-4">Kind</th>
-            <th className="py-2">Parent</th>
+          <tr className="border-b border-border-strong">
+            <th className={`${TH_CLASS} pr-4`}>Name</th>
+            <th className={`${TH_CLASS} pr-4`}>Kind</th>
+            <th className={TH_CLASS}>Parent</th>
           </tr>
         </thead>
         <tbody>
           {orgs.map((o) => (
-            <tr key={o.id} className="border-b last:border-0">
-              <td className="py-2 pr-4">{o.name}</td>
-              <td className="py-2 pr-4">{o.kind}</td>
-              <td className="py-2 text-gray-500">{o.parent?.name ?? '—'}</td>
+            <tr key={o.id} className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors">
+              <td className="py-2.5 pr-4 font-medium text-text-1">{o.name}</td>
+              <td className="py-2.5 pr-4 text-text-2">{o.kind}</td>
+              <td className="py-2.5 text-text-2">{o.parent?.name ?? '—'}</td>
             </tr>
           ))}
           {orgs.length === 0 && (
             <tr>
-              <td colSpan={3} className="py-4 text-center text-gray-400">
-                No organizations yet
-              </td>
+              <td colSpan={3} className="py-4 text-center text-xs text-text-3 italic">No organizations yet</td>
             </tr>
           )}
         </tbody>

@@ -2,59 +2,72 @@ import Link from 'next/link'
 
 const WORKFLOWS = [
   {
+    index: '01',
     href: '/dashboard/enterprise',
     title: 'Enterprise Dashboard',
     description:
-      'View cost roll-up across all HQs. Aggregates CostEntry rows by home HQ and displays total spend per headquarters. Includes CSV export.',
+      'Aggregates CostEntry rows by home HQ, displays total spend per headquarters, and includes CSV export.',
   },
   {
+    index: '02',
     href: '/close',
     title: 'Period Close',
     description:
-      'Run cost allocations, execute inter-HQ transfers, and lock accounting periods. Drives the month-end close workflow from a single page.',
+      'Runs cost allocations, executes inter-HQ transfers, and locks accounting periods from a single page.',
   },
   {
+    index: '03',
     href: '/dashboard/variance',
     title: 'Variance Analysis',
     description:
-      'Inspect price, volume, and mix variance between budget and actuals. Breaks down the delta for every cost category in a readable table.',
+      'Inspects price, volume, and mix variance between budget and actuals for every cost category.',
   },
 ]
 
 export default function DemoLanding() {
   return (
-    <div data-testid="demo-landing" className="min-h-screen bg-gray-50 px-8 py-16">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="text-3xl font-bold text-gray-900">Cost Accounting — Demo</h1>
-        <p className="mt-3 text-gray-500">
-          This app demonstrates a cost-accounting system for a multi-HQ enterprise. Seed data
-          includes 5 HQs, 20 projects, and approximately 200 personnel records with realistic cost
-          entries.
-        </p>
+    <div data-testid="demo-landing" className="min-h-screen bg-bg px-8 py-16">
+      <div className="mx-auto max-w-3xl space-y-12">
+        <div>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-text-1">
+            Cost Accounting
+          </h1>
+          <p className="mt-3 text-sm text-text-2 leading-relaxed max-w-xl">
+            Demonstrates a cost-accounting system for a multi-HQ enterprise. Seed data includes
+            5 HQs, 20 projects, and approximately 200 personnel records with realistic cost entries.
+          </p>
+        </div>
 
-        <section className="mt-12">
-          <h2 className="mb-6 text-sm font-semibold uppercase tracking-wide text-gray-400">
+        <section>
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
             Key Workflows
           </h2>
-          <div className="space-y-4">
+          <div className="border border-border divide-y divide-border">
             {WORKFLOWS.map((w) => (
               <Link
                 key={w.href}
                 href={w.href}
-                className="block rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                className="group flex gap-5 bg-surface px-6 py-5 hover:bg-surface-alt transition-colors"
               >
-                <h3 className="font-semibold text-gray-900">{w.title}</h3>
-                <p className="mt-1 text-sm text-gray-500">{w.description}</p>
+                <span className="font-display text-xs font-medium text-text-3 tabular-nums pt-0.5 shrink-0">
+                  {w.index}
+                </span>
+                <div>
+                  <h3 className="font-display font-semibold text-text-1 group-hover:text-accent transition-colors">
+                    {w.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-text-2 leading-relaxed">{w.description}</p>
+                </div>
               </Link>
             ))}
           </div>
         </section>
 
-        <section className="mt-12 rounded-lg border border-gray-200 bg-white p-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">
-            Seed Data Summary
+        <section className="border border-border bg-surface p-6">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
+            Seed Data
           </h2>
-          <ul className="space-y-1 text-sm text-gray-600">
+          <ul className="space-y-1 text-sm text-text-2">
             <li>5 HQ organizations</li>
             <li>20 projects distributed across HQs</li>
             <li>~200 personnel records with home HQ assignments</li>

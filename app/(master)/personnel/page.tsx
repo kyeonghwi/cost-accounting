@@ -22,6 +22,9 @@ async function createPersonnel(formData: FormData) {
   revalidatePath('/personnel')
 }
 
+const INPUT_CLASS = 'rounded border border-border bg-surface px-3 py-1.5 text-sm text-text-1 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors'
+const TH_CLASS = 'pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3'
+
 export default async function PersonnelPage() {
   let personnel: PersonnelWithRefs[] = []
   let hqOrgs: Organization[] = []
@@ -42,60 +45,49 @@ export default async function PersonnelPage() {
 
   return (
     <div data-testid="personnel-page">
-      <h1 className="mb-4 text-xl font-semibold">Personnel</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Personnel</h1>
 
-      <form action={createPersonnel} className="mb-6 space-y-3 rounded border border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">New Personnel</h2>
+      <form action={createPersonnel} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Personnel</h2>
         <div className="flex flex-wrap gap-3">
-          <input
-            name="name"
-            required
-            placeholder="Name"
-            className="flex-1 rounded border border-gray-300 px-3 py-1.5 text-sm"
-          />
-          <select name="homeHqId" required className="rounded border border-gray-300 px-3 py-1.5 text-sm">
+          <input name="name" required placeholder="Name" className={`flex-1 ${INPUT_CLASS}`} />
+          <select name="homeHqId" required className={INPUT_CLASS}>
             <option value="">Home HQ…</option>
             {hqOrgs.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.name}
-              </option>
+              <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
-          <select name="costCategoryId" required className="rounded border border-gray-300 px-3 py-1.5 text-sm">
+          <select name="costCategoryId" required className={INPUT_CLASS}>
             <option value="">Category…</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.code} ({c.kind})
-              </option>
+              <option key={c.id} value={c.id}>{c.code} ({c.kind})</option>
             ))}
           </select>
         </div>
-        <button type="submit" className="rounded bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700">
+        <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
           Create
         </button>
       </form>
 
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-xs uppercase text-gray-500">
-            <th className="py-2 pr-4">Name</th>
-            <th className="py-2 pr-4">Home HQ</th>
-            <th className="py-2">Cost Category</th>
+          <tr className="border-b border-border-strong">
+            <th className={`${TH_CLASS} pr-4`}>Name</th>
+            <th className={`${TH_CLASS} pr-4`}>Home HQ</th>
+            <th className={TH_CLASS}>Cost Category</th>
           </tr>
         </thead>
         <tbody>
           {personnel.map((p) => (
-            <tr key={p.id} className="border-b last:border-0">
-              <td className="py-2 pr-4">{p.name}</td>
-              <td className="py-2 pr-4 text-gray-500">{p.homeHq.name}</td>
-              <td className="py-2">{p.costCategory.code}</td>
+            <tr key={p.id} className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors">
+              <td className="py-2.5 pr-4 font-medium text-text-1">{p.name}</td>
+              <td className="py-2.5 pr-4 text-text-2">{p.homeHq.name}</td>
+              <td className="py-2.5 font-mono text-xs text-text-2">{p.costCategory.code}</td>
             </tr>
           ))}
           {personnel.length === 0 && (
             <tr>
-              <td colSpan={3} className="py-4 text-center text-gray-400">
-                No personnel yet
-              </td>
+              <td colSpan={3} className="py-4 text-center text-xs text-text-3 italic">No personnel yet</td>
             </tr>
           )}
         </tbody>

@@ -6,12 +6,12 @@ export function PersonaSwitcher() {
   const { persona, setPersona } = usePersona()
 
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <span className="text-gray-500">Viewing as:</span>
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-text-3">Viewing as:</span>
       <select
         value={persona}
         onChange={(e) => setPersona(e.target.value as typeof persona)}
-        className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
+        className="rounded border border-border bg-surface px-2 py-1 text-xs text-text-1 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent hover:border-border-strong transition-colors"
         aria-label="Switch persona"
       >
         {PERSONAS.map((p) => (

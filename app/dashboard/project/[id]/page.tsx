@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import type { Personnel, Project } from '@prisma/client'
 
@@ -13,7 +14,6 @@ export default async function ProjectDashboard({ params }: Props) {
     project = await prisma.project.findUnique({ where: { id } })
     if (project) {
       // @AX:ANCHOR: [AUTO] two-query distinct personnel lookup — entries→ids→personnel; change only with matching migration of all callers
-      // Find unique personnel who have cost entries on this project
       const entries = await prisma.costEntry.findMany({
         where: { projectId: id },
         select: { personnelId: true },
@@ -30,44 +30,44 @@ export default async function ProjectDashboard({ params }: Props) {
   } catch { /* DB not available in build */ }
 
   if (!project) {
-    return <div className="p-8 text-gray-500">Project not found.</div>
+    return <div className="p-8 text-sm text-text-3 italic">Project not found.</div>
   }
 
   return (
     <div data-testid="project-dashboard" className="p-8">
-      <h1 className="mb-2 text-2xl font-bold text-gray-900">{project.name}</h1>
-      <p className="mb-1 text-sm text-gray-500">
-        Code: <span className="font-mono">{project.code}</span>
-      </p>
-      <p className="mb-6 text-sm text-gray-500">
-        Budget: ${Number(project.budgetAmount).toLocaleString()}
-      </p>
+      <div className="mb-8">
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-text-1">{project.name}</h1>
+        <div className="mt-2 flex gap-6 text-xs text-text-3">
+          <span>Code: <span className="font-mono text-text-2">{project.code}</span></span>
+          <span>Budget: <span className="tabular-nums text-text-2">${Number(project.budgetAmount).toLocaleString('en-US', { minimumFractionDigits: 0 })}</span></span>
+        </div>
+      </div>
 
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
         Assigned Personnel
       </h2>
 
       {personnelList.length === 0 ? (
-        <p className="text-gray-400">No personnel with cost entries on this project.</p>
+        <p className="text-sm text-text-3 italic">No personnel with cost entries on this project.</p>
       ) : (
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-left text-xs uppercase text-gray-500">
-              <th className="py-2 pr-4">Name</th>
-              <th className="py-2">Link</th>
+            <tr className="border-b border-border-strong">
+              <th className="pb-2.5 pr-4 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Name</th>
+              <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3"></th>
             </tr>
           </thead>
           <tbody>
             {personnelList.map((p) => (
-              <tr key={p.id} className="border-b last:border-0" data-testid="personnel-row">
-                <td className="py-2 pr-4 font-medium text-gray-900">{p.name}</td>
-                <td className="py-2">
-                  <a
+              <tr key={p.id} className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors" data-testid="personnel-row">
+                <td className="py-2.5 pr-4 font-medium text-text-1">{p.name}</td>
+                <td className="py-2.5">
+                  <Link
                     href={`/dashboard/personnel/${p.id}`}
-                    className="text-indigo-600 hover:underline"
+                    className="text-xs text-accent hover:text-accent-hover transition-colors"
                   >
-                    Personnel: {p.name}
-                  </a>
+                    Details →
+                  </Link>
                 </td>
               </tr>
             ))}

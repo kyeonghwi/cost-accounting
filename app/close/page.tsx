@@ -20,32 +20,51 @@ export default async function ClosePage() {
   ])
 
   return (
-    <div data-testid="close-page" className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Monthly Close</h1>
+    <div data-testid="close-page" className="mx-auto max-w-3xl px-8 py-10 space-y-12">
+      <div>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-text-1">
+          Monthly Close
+        </h1>
+        <p className="mt-1 text-xs uppercase tracking-[0.06em] text-text-3">
+          Overhead Allocation · Period Lock
+        </p>
+      </div>
 
       <CloseForm openPeriods={openPeriods} />
 
       <section>
-        <h2 className="text-lg font-semibold mb-3">Recent Runs</h2>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
+          Recent Runs
+        </h2>
         {history.length === 0 ? (
-          <p className="text-sm text-gray-500">No runs yet.</p>
+          <p className="text-sm text-text-3 italic">No runs yet.</p>
         ) : (
-          <table className="w-full text-sm border-collapse">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 pr-4">Date</th>
-                <th className="text-left py-2 pr-4">Period</th>
-                <th className="text-left py-2 pr-4">Method</th>
-                <th className="text-left py-2">Status</th>
+              <tr className="border-b border-border-strong">
+                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Date</th>
+                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Period</th>
+                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Method</th>
+                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Status</th>
               </tr>
             </thead>
             <tbody>
               {history.map((run) => (
-                <tr key={run.id} className="border-b last:border-0">
-                  <td className="py-2 pr-4">{run.createdAt.toISOString().slice(0, 16)}</td>
-                  <td className="py-2 pr-4">{formatYearMonth(run.period.yearMonth)}</td>
-                  <td className="py-2 pr-4">{run.method}</td>
-                  <td className="py-2">{run.period.status}</td>
+                <tr key={run.id} className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors">
+                  <td className="py-2.5 tabular-nums text-xs text-text-2">
+                    {run.createdAt.toISOString().slice(0, 16).replace('T', ' ')}
+                  </td>
+                  <td className="py-2.5 font-medium text-text-1">{formatYearMonth(run.period.yearMonth)}</td>
+                  <td className="py-2.5 text-text-2">{run.method}</td>
+                  <td className="py-2.5">
+                    <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
+                      run.period.status === 'CLOSED'
+                        ? 'bg-accent-dim text-accent'
+                        : 'bg-surface-alt text-text-2'
+                    }`}>
+                      {run.period.status}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>

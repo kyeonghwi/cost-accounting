@@ -18,7 +18,7 @@ export function ExportButton({ data, columns, filename, label = 'Export CSV' }: 
   return (
     <button
       onClick={handleClick}
-      className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border"
+      className="rounded border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-2 transition-colors hover:border-border-strong hover:text-text-1 hover:bg-surface-alt"
       data-testid="export-button"
     >
       {label}

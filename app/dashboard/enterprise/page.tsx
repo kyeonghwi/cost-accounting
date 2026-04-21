@@ -6,7 +6,6 @@ import { ExportButton } from '@/components/export/ExportButton'
 // @AX:NOTE: [AUTO] magic constant — kind filter 'HQ' duplicated from home page; centralise if enum grows
 type HqWithCost = Organization & { totalCost: string }
 
-// Columns exported to CSV
 const EXPORT_COLUMNS = ['name', 'totalCost']
 
 export default async function EnterpriseDashboard() {
@@ -19,7 +18,6 @@ export default async function EnterpriseDashboard() {
 
     // @AX:WARN: [AUTO] O(n) linear scan inside loop — costGroups × personnelList join is in-memory; degrades with large datasets; consider a direct SQL join or indexed map
     // @AX:ANCHOR: [AUTO] enterprise cost roll-up — aggregates all CostEntry rows by HQ; used as the top-level financial summary
-    // Sum cost entries per HQ (via personnel home HQ)
     const costGroups = await prisma.costEntry.groupBy({
       by: ['personnelId'],
       _sum: { amount: true },
@@ -44,19 +42,27 @@ export default async function EnterpriseDashboard() {
   } catch { /* DB not available in build */ }
 
   if (!hqList.length) {
-    return <div className="p-8 text-gray-500">No data available. Run seed first.</div>
+    return <div className="p-8 text-sm text-text-3 italic">No data — run seed first.</div>
   }
 
-  // Serialize to plain objects for the client component
   const exportData: Record<string, unknown>[] = hqList.map((hq) => ({
     name: hq.name,
     totalCost: hq.totalCost,
   }))
 
+  const grandTotal = hqList.reduce((acc, hq) => acc + Number(hq.totalCost), 0)
+
   return (
     <div data-testid="enterprise-dashboard" className="p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Enterprise Dashboard</h1>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-text-1">
+            Enterprise Dashboard
+          </h1>
+          <p className="mt-1 text-xs uppercase tracking-[0.06em] text-text-3">
+            Cost Roll-Up by Headquarters
+          </p>
+        </div>
         <ExportButton
           data={exportData}
           columns={EXPORT_COLUMNS}
@@ -66,23 +72,46 @@ export default async function EnterpriseDashboard() {
       </div>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-xs uppercase text-gray-500">
-            <th className="py-2 pr-4">HQ</th>
-            <th className="py-2 text-right">Total Cost</th>
+          <tr className="border-b border-border-strong">
+            <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">
+              Headquarters
+            </th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">
+              Total Cost
+            </th>
           </tr>
         </thead>
         <tbody>
           {hqList.map((hq) => (
-            <tr key={hq.id} className="border-b last:border-0" data-testid="hq-row">
-              <td className="py-2 pr-4">
-                <Link href={`/dashboard/hq/${hq.id}`} className="font-medium text-indigo-600 hover:underline">
+            <tr
+              key={hq.id}
+              className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors"
+              data-testid="hq-row"
+            >
+              <td className="py-3">
+                <Link
+                  href={`/dashboard/hq/${hq.id}`}
+                  className="font-medium text-accent hover:text-accent-hover transition-colors"
+                >
                   {hq.name}
                 </Link>
               </td>
-              <td className="py-2 text-right tabular-nums">${hq.totalCost}</td>
+              <td className="py-3 text-right tabular-nums font-medium text-text-1">
+                ${Number(hq.totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </td>
             </tr>
           ))}
         </tbody>
+        <tfoot>
+          <tr className="border-t border-border-strong">
+            <td className="pt-3 text-xs font-semibold uppercase tracking-[0.06em] text-text-3">
+              Grand Total
+            </td>
+            <td className="pt-3 text-right tabular-nums font-semibold text-text-1">
+              ${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   )

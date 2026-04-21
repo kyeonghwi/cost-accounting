@@ -2,6 +2,20 @@ import { prisma } from '@/lib/prisma'
 import { VarianceBarChart } from '@/components/charts/VarianceBarChart'
 import type { VarianceSnapshot } from '@prisma/client'
 
+function signClass(n: number) {
+  if (n > 0) return 'text-positive'
+  if (n < 0) return 'text-negative'
+  return 'text-text-2'
+}
+
+function fmt(n: number) {
+  return n.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    signDisplay: 'exceptZero',
+  })
+}
+
 export default async function VarianceDashboard() {
   let snapshots: VarianceSnapshot[] = []
   try {
@@ -14,8 +28,8 @@ export default async function VarianceDashboard() {
 
   if (!snapshots.length) {
     return (
-      <div data-testid="variance-dashboard" className="p-8 text-gray-500">
-        No variance data available. Run a period close with variance analysis first.
+      <div data-testid="variance-dashboard" className="p-8 text-sm text-text-3 italic">
+        No variance data. Run a period close with variance analysis first.
       </div>
     )
   }
@@ -29,41 +43,51 @@ export default async function VarianceDashboard() {
 
   return (
     <div data-testid="variance-dashboard" className="p-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Variance Analysis</h1>
-
       <div className="mb-8">
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-text-1">
+          Variance Analysis
+        </h1>
+        <p className="mt-1 text-xs uppercase tracking-[0.06em] text-text-3">
+          Price · Volume · Mix Effects
+        </p>
+      </div>
+
+      <div className="mb-10 border border-border bg-surface p-4">
         <VarianceBarChart data={chartData} />
       </div>
 
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-xs uppercase text-gray-500">
-            <th className="py-2 pr-4">Scope</th>
-            <th className="py-2 pr-4 text-right">Price</th>
-            <th className="py-2 pr-4 text-right">Volume</th>
-            <th className="py-2 pr-4 text-right">Mix</th>
-            <th className="py-2 pr-4 text-right">Efficiency</th>
-            <th className="py-2 text-right">Residual</th>
+          <tr className="border-b border-border-strong">
+            <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Scope</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Price</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Volume</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Mix</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Efficiency</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Residual</th>
           </tr>
         </thead>
         <tbody>
           {snapshots.map((s) => (
-            <tr key={s.id} className="border-b last:border-0">
-              <td className="py-2 pr-4 font-medium text-gray-900">{s.scope}</td>
-              <td className="py-2 pr-4 text-right tabular-nums">
-                {Number(s.priceEffect).toFixed(2)}
+            <tr
+              key={s.id}
+              className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors"
+            >
+              <td className="py-3 font-medium text-text-1">{s.scope}</td>
+              <td className={`py-3 text-right tabular-nums font-medium ${signClass(Number(s.priceEffect))}`}>
+                {fmt(Number(s.priceEffect))}
               </td>
-              <td className="py-2 pr-4 text-right tabular-nums">
-                {Number(s.volumeEffect).toFixed(2)}
+              <td className={`py-3 text-right tabular-nums font-medium ${signClass(Number(s.volumeEffect))}`}>
+                {fmt(Number(s.volumeEffect))}
               </td>
-              <td className="py-2 pr-4 text-right tabular-nums">
-                {Number(s.mixEffect).toFixed(2)}
+              <td className={`py-3 text-right tabular-nums font-medium ${signClass(Number(s.mixEffect))}`}>
+                {fmt(Number(s.mixEffect))}
               </td>
-              <td className="py-2 pr-4 text-right tabular-nums">
-                {Number(s.efficiencyEffect).toFixed(2)}
+              <td className={`py-3 text-right tabular-nums font-medium ${signClass(Number(s.efficiencyEffect))}`}>
+                {fmt(Number(s.efficiencyEffect))}
               </td>
-              <td className="py-2 text-right tabular-nums">
-                {Number(s.residual).toFixed(2)}
+              <td className={`py-3 text-right tabular-nums font-medium ${signClass(Number(s.residual))}`}>
+                {fmt(Number(s.residual))}
               </td>
             </tr>
           ))}
