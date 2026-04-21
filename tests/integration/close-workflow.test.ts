@@ -12,7 +12,7 @@ const mockPeriod = {
   closedAt: null,
 }
 
-function makeMockPrisma(overrides: Partial<typeof mockPrisma> = {}) {
+function makeMockPrisma() {
   const base = {
     period: {
       findUnique: vi.fn().mockResolvedValue(mockPeriod),
@@ -32,7 +32,6 @@ function makeMockPrisma(overrides: Partial<typeof mockPrisma> = {}) {
     $transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
       fn(base),
     ),
-    ...overrides,
   }
   return base as unknown as PrismaClient
 }

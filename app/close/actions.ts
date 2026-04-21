@@ -1,6 +1,6 @@
 'use server'
 
-// @AX:ANCHOR: [AUTO] server action boundary — closeAction and getCloseHistory are Next.js server actions; callers: ClosePage (page.tsx); do not change signatures without updating callers
+// @AX:ANCHOR: [AUTO] server action boundary — closeAction and getCloseHistory are Next.js server actions; callers: CloseForm (CloseForm.tsx); do not change signatures without updating callers
 import { AllocationMethod } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { runCloseWorkflow } from '@/lib/close/workflow'
@@ -9,21 +9,30 @@ import type { CloseResult } from '@/lib/close/workflow'
 export type CloseActionState =
   | { ok: true; result: CloseResult }
   | { ok: false; error: string }
+  | null
+
+const VALID_METHODS: ReadonlyArray<string> = ['DIRECT', 'STEP_DOWN']
 
 /**
- * Server action: runs the monthly close workflow for a period.
- * Reads periodId and method from form data.
+ * Server action compatible with useFormState: (prevState, formData) => State.
+ * Validates periodId presence and method enum before invoking the workflow.
  */
-export async function closeAction(formData: FormData): Promise<CloseActionState> {
+export async function closeAction(
+  _prev: CloseActionState,
+  formData: FormData,
+): Promise<CloseActionState> {
   const periodId = formData.get('periodId')
   const methodRaw = formData.get('method')
 
   if (typeof periodId !== 'string' || !periodId) {
-    return { ok: false, error: 'periodId is required' }
+    return { ok: false, error: 'Period is required.' }
   }
 
-  const method =
-    methodRaw === 'STEP_DOWN' ? AllocationMethod.STEP_DOWN : AllocationMethod.DIRECT
+  if (typeof methodRaw !== 'string' || !VALID_METHODS.includes(methodRaw)) {
+    return { ok: false, error: `Invalid allocation method: ${String(methodRaw)}` }
+  }
+
+  const method = methodRaw === 'STEP_DOWN' ? AllocationMethod.STEP_DOWN : AllocationMethod.DIRECT
 
   try {
     const result = await runCloseWorkflow(prisma, periodId, method)
@@ -34,8 +43,6 @@ export async function closeAction(formData: FormData): Promise<CloseActionState>
   }
 }
 
-// @AX:TODO: [AUTO] closeAction has no integration test covering the error path (period not found, already CLOSED)
-// @AX:CYCLE:1
 /**
  * Returns the last 10 AllocationRun rows, newest first.
  */

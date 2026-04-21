@@ -1,8 +1,7 @@
 'use client'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 // @AX:NOTE: [AUTO] magic constant — height={300} is a fixed pixel value; replace with a responsive prop if chart container height varies
-// @AX:NOTE: [AUTO] magic constant — fill="#4f46e5" is hardcoded Indigo-600; tie to design token if theme support is added
 
 type Props = { data: Array<{ name: string; value: number }> }
 
@@ -13,7 +12,11 @@ export function VarianceBarChart({ data }: Props) {
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip />
-        <Bar dataKey="value" fill="#4f46e5" />
+        <Bar dataKey="value">
+          {data.map((entry, index) => (
+            <Cell key={index} fill={entry.value < 0 ? '#ef4444' : '#4f46e5'} />
+          ))}
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   )

@@ -56,21 +56,18 @@ export default async function Home() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase text-gray-500">
-                <th className="py-2 pr-4">HQ Name</th>
-                <th className="py-2">Actions</th>
+                <th className="py-2">HQ Name</th>
               </tr>
             </thead>
             <tbody>
               {hqList.map((hq) => (
-                <tr key={hq.id} className="border-b last:border-0">
-                  <td className="py-2 pr-4 font-medium text-gray-900">{hq.name}</td>
+                <tr key={hq.id} className="border-b last:border-0" data-testid="hq-row">
                   <td className="py-2">
                     <Link
                       href={`/dashboard/hq/${hq.id}`}
-                      className="text-indigo-600 hover:underline"
-                      data-testid="hq-row"
+                      className="font-medium text-indigo-600 hover:underline"
                     >
-                      HQ: {hq.name}
+                      {hq.name}
                     </Link>
                   </td>
                 </tr>

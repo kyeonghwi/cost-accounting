@@ -68,20 +68,18 @@ export default async function EnterpriseDashboard() {
         <thead>
           <tr className="border-b text-left text-xs uppercase text-gray-500">
             <th className="py-2 pr-4">HQ</th>
-            <th className="py-2 pr-4 text-right">Total Cost</th>
-            <th className="py-2">Link</th>
+            <th className="py-2 text-right">Total Cost</th>
           </tr>
         </thead>
         <tbody>
           {hqList.map((hq) => (
             <tr key={hq.id} className="border-b last:border-0" data-testid="hq-row">
-              <td className="py-2 pr-4 font-medium text-gray-900">{hq.name}</td>
-              <td className="py-2 pr-4 text-right tabular-nums">${hq.totalCost}</td>
-              <td className="py-2">
-                <Link href={`/dashboard/hq/${hq.id}`} className="text-indigo-600 hover:underline">
-                  View HQ
+              <td className="py-2 pr-4">
+                <Link href={`/dashboard/hq/${hq.id}`} className="font-medium text-indigo-600 hover:underline">
+                  {hq.name}
                 </Link>
               </td>
+              <td className="py-2 text-right tabular-nums">${hq.totalCost}</td>
             </tr>
           ))}
         </tbody>
