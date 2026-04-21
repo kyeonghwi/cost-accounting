@@ -11,7 +11,8 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       // @AX:NOTE [AUTO] coverage scope intentionally limited to lib/; app/ components tested via Playwright only
       include: ['lib/**/*.ts'],
-      exclude: ['lib/utils.ts'],
+      // runner.ts / runner.queries.ts are DB persistence layer requiring live PostgreSQL — excluded from unit coverage
+      exclude: ['lib/utils.ts', 'lib/allocation/runner.ts', 'lib/allocation/runner.queries.ts'],
     },
   },
   resolve: {
