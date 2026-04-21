@@ -172,7 +172,7 @@ model AllocationRule {
 
 model AllocationRun {
   id             String           @id @default(cuid())
-  periodId       String
+  periodId       String           @unique
   method         AllocationMethod
   inputChecksum  String
   outputChecksum String

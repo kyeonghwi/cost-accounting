@@ -42,7 +42,7 @@ export async function runCloseWorkflow(
   periodId: string,
   method: AllocationMethod,
 ): Promise<CloseResult> {
-  // Validate period
+  // Pre-validate for user-friendly error messages (non-authoritative — see transaction guard below).
   const period = await prisma.period.findUnique({ where: { id: periodId } })
   if (!period) throw new Error(`Period not found: ${periodId}`)
   if (period.status === 'CLOSED') throw new Error(`Period ${periodId} is already CLOSED`)
@@ -95,7 +95,10 @@ export async function runCloseWorkflow(
     ? await loadTransferEntries(prisma, periodId)
     : []
 
-  // Persist everything in one transaction
+  // Persist everything in one transaction.
+  // The period.update inside uses WHERE status='OPEN' as the authoritative
+  // double-close guard — a concurrent request that passes the pre-validation
+  // above will fail here with P2025 if the period was already closed.
   const { run, transferCount } = await prisma.$transaction(async (tx) => {
     const created: AllocationRun = await tx.allocationRun.create({
       data: {
@@ -136,8 +139,11 @@ export async function runCloseWorkflow(
       count = result.count
     }
 
+    // WHERE status='OPEN' is the concurrency guard: if the period was closed by
+    // a concurrent request after the pre-validation above, Prisma throws P2025
+    // and the transaction rolls back, leaving no AllocationRun row committed.
     await tx.period.update({
-      where: { id: periodId },
+      where: { id: periodId, status: 'OPEN' },
       data: { status: 'CLOSED', closedAt: new Date() },
     })
 
