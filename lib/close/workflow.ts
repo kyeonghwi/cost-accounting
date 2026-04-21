@@ -1,10 +1,9 @@
 import type { PrismaClient, AllocationRun, AllocationMethod } from '@prisma/client'
 import { checksumInput, checksumOutput } from '../allocation/checksum'
 import type { ChecksumInputEntry, ChecksumInputRule, ChecksumOutputResult } from '../allocation/checksum'
-import { directAllocate } from '../allocation/direct'
-import type { AllocationKey, DirectTarget } from '../allocation/direct'
-import { stepDownAllocate } from '../allocation/stepDown'
-import type { Pool, StepDownResult } from '../allocation/stepDown'
+import type { DirectTarget } from '../allocation/direct'
+import type { Pool } from '../allocation/stepDown'
+import { computeAllocations } from '../allocation/compute'
 import { computeTransferEntries } from '../transfer/engine'
 import {
   loadAllocationRules,
@@ -17,13 +16,7 @@ export interface CloseResult {
   status: 'CLOSED'
   allocationRunId: string
   transferCount: number
-}
-
-interface RuleRow {
-  poolOrgId: string
-  allocationKey: AllocationKey
-  method: string
-  sequence: number | null
+  emptyPool: boolean
 }
 
 // @AX:ANCHOR: [AUTO] monthly close entry point — fan_in: closeAction (actions.ts); changes here affect Period.status, AllocationRun, AllocationResult, TransferEntry atomically
@@ -56,13 +49,20 @@ export async function runCloseWorkflow(
   const prismaAny = prisma as unknown as Record<string, Record<string, unknown>>
   const hasAllocationRule = typeof prismaAny['allocationRule']?.['findMany'] === 'function'
 
-  const [rules, poolAmounts, targets] = hasAllocationRule
+  const [rules, poolAmounts, targets]: [
+    Awaited<ReturnType<typeof loadAllocationRules>>,
+    Pool[],
+    DirectTarget[],
+  ] = hasAllocationRule
     ? await Promise.all([
         loadAllocationRules(prisma),
-        loadPoolAmounts(prisma, periodId),
-        loadOperatingTargets(prisma, periodId),
+        loadPoolAmounts(prisma, periodId) as Promise<Pool[]>,
+        loadOperatingTargets(prisma, periodId) as Promise<DirectTarget[]>,
       ])
     : [[], [], []]
+
+  // emptyPool=true when all pool amounts are zero — close still proceeds, result is flagged.
+  const emptyPool = poolAmounts.length === 0 || poolAmounts.every((p) => p.amount.isZero())
 
   // Build allocation checksums
   const inputEntries: ChecksumInputEntry[] = poolAmounts.map((p) => ({
@@ -72,13 +72,13 @@ export async function runCloseWorkflow(
   const inputRules: ChecksumInputRule[] = rules.map((r) => ({
     poolOrgId: r.poolOrgId,
     allocationKey: r.allocationKey,
-    method: r.method as string,
+    method: r.method,
     sequence: r.sequence,
   }))
   const inputChecksum = checksumInput(inputEntries, inputRules)
 
-  // Compute allocations using pure functions
-  const stepResults = computeAllocations(method, rules as RuleRow[], poolAmounts, targets)
+  // computeAllocations is shared with runner.ts via lib/allocation/compute.ts
+  const stepResults = computeAllocations(method, rules, poolAmounts, targets)
 
   const outputForChecksum: ChecksumOutputResult[] = stepResults.map((r) => ({
     fromPoolOrgId: r.fromPoolOrgId,
@@ -155,11 +155,10 @@ export async function runCloseWorkflow(
     status: 'CLOSED',
     allocationRunId: run.id,
     transferCount,
+    emptyPool,
   }
 }
 
-// @AX:TODO: [AUTO] computeAllocations has no dedicated unit test; both DIRECT and STEP_DOWN branches should be covered with pure-function tests
-// @AX:CYCLE:1
 // ─── Private helpers ──────────────────────────────────────────────────────────
 
 async function loadTransferEntries(
@@ -192,38 +191,4 @@ async function loadTransferEntries(
   }))
 
   return computeTransferEntries(costEntries, markupRows)
-}
-
-// @AX:WARN: [AUTO] branching allocation logic — STEP_DOWN sorts by sequence nullable, DIRECT falls back to 'HEADCOUNT'; incorrect sequence ordering silently produces wrong cost distribution
-function computeAllocations(
-  method: AllocationMethod,
-  rules: RuleRow[],
-  pools: Pool[],
-  targets: DirectTarget[],
-): StepDownResult[] {
-  if (method === 'STEP_DOWN') {
-    const sequence = rules
-      .filter((r) => r.method === 'STEP_DOWN' && r.sequence !== null)
-      .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
-      .map((r) => r.poolOrgId)
-    return stepDownAllocate(pools, sequence, targets)
-  }
-
-  const results: StepDownResult[] = []
-  const ruleByPool = new Map(rules.map((r) => [r.poolOrgId, r]))
-  for (const pool of pools) {
-    if (pool.amount.isZero()) continue
-    const rule = ruleByPool.get(pool.orgId)
-    // @AX:NOTE: [AUTO] magic constant — 'HEADCOUNT' is the default allocation key when no rule row exists for a pool
-    const key: AllocationKey = rule?.allocationKey ?? 'HEADCOUNT'
-    const distributed = directAllocate(pool.amount, { allocationKey: key }, targets)
-    for (const d of distributed) {
-      results.push({
-        fromPoolOrgId: pool.orgId,
-        toProjectId: d.projectId,
-        amount: d.amount,
-      })
-    }
-  }
-  return results
 }

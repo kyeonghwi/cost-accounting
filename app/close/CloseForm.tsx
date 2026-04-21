@@ -4,6 +4,7 @@ import { useFormState, useFormStatus } from 'react-dom'
 import { closeAction } from './actions'
 import type { CloseActionState } from './actions'
 import type { Period } from '@prisma/client'
+import { usePersona } from '@/lib/persona'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -34,15 +35,19 @@ type Props = { openPeriods: Period[] }
 
 export function CloseForm({ openPeriods }: Props) {
   const [state, formAction] = useFormState<CloseActionState, FormData>(closeAction, null)
+  const { persona } = usePersona()
+  const canClose = persona !== 'viewer'
 
   return (
     <section className="mb-10">
       <h2 className="text-lg font-semibold mb-3">Run Close</h2>
 
       {state?.ok === true && (
-        <div className="mb-4 rounded bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
-          Period closed successfully. Run ID: <code className="font-mono">{state.result.allocationRunId}</code>.
-          Transfer entries written: {state.result.transferCount}.
+        <div className="mb-4 rounded bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800 space-y-1">
+          <p>Period closed. Run ID: <code className="font-mono">{state.result.allocationRunId}</code>. Transfer entries: {state.result.transferCount}.</p>
+          {state.result.emptyPool && (
+            <p className="text-amber-700">No overhead pool costs found — period closed with zero allocation results.</p>
+          )}
         </div>
       )}
 
@@ -52,7 +57,11 @@ export function CloseForm({ openPeriods }: Props) {
         </div>
       )}
 
-      <form action={formAction} className="flex flex-col gap-4 max-w-sm">
+      {!canClose && (
+        <p className="mb-4 text-sm text-gray-500 italic">Switch to Cost Accountant persona to run a close.</p>
+      )}
+
+      <form action={formAction} className={`flex flex-col gap-4 max-w-sm${!canClose ? ' opacity-50 pointer-events-none' : ''}`}>
         <div>
           <label htmlFor="periodId" className="block text-sm font-medium mb-1">
             Period
