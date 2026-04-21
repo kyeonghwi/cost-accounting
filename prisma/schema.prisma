@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum OrgKind {
+  ENTERPRISE
+  HQ
+  DEPARTMENT
+}
+
+enum CostCategoryKind {
+  LABOR
+  OVERHEAD
+  EXTERNAL
+}
+
+enum RateScope {
+  PERSONNEL
+  CATEGORY
+}
+
+enum PeriodStatus {
+  OPEN
+  CLOSED
+}
+
+enum AllocationKey {
+  HEADCOUNT
+  DIRECT_LABOR_HOURS
+  DIRECT_COST
+}
+
+enum AllocationMethod {
+  DIRECT
+  STEP_DOWN
+}
+
+enum TransferDirection {
+  CREDIT
+  CHARGE
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model Organization {
+  id       String  @id @default(cuid())
+  name     String
+  kind     OrgKind
+  parentId String?
+
+  parent   Organization?  @relation("OrgHierarchy", fields: [parentId], references: [id])
+  children Organization[] @relation("OrgHierarchy")
+
+  ownedProjects  Project[]        @relation("ProjectOwner")
+  homePersonnel  Personnel[]      @relation("PersonnelHome")
+  poolAllocRules AllocationRule[] @relation("PoolOrg")
+  transferFrom   TransferEntry[]  @relation("TransferFrom")
+  transferTo     TransferEntry[]  @relation("TransferTo")
+  markupFrom     TransferMarkup[] @relation("MarkupFrom")
+  markupTo       TransferMarkup[] @relation("MarkupTo")
+
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id           String  @id @default(cuid())
+  code         String  @unique
+  name         String
+  ownerHqId    String
+  budgetAmount Decimal @db.Decimal(18, 4)
+
+  ownerHq           Organization       @relation("ProjectOwner", fields: [ownerHqId], references: [id])
+  costEntries       CostEntry[]
+  allocationResults AllocationResult[]
+
+  createdAt DateTime @default(now())
+}
+
+model Personnel {
+  id             String @id @default(cuid())
+  name           String
+  homeHqId       String
+  costCategoryId String
+
+  homeHq       Organization    @relation("PersonnelHome", fields: [homeHqId], references: [id])
+  costCategory CostCategory    @relation(fields: [costCategoryId], references: [id])
+  costEntries  CostEntry[]
+  transfers    TransferEntry[]
+
+  createdAt DateTime @default(now())
+}
+
+model CostCategory {
+  id   String           @id @default(cuid())
+  code String           @unique
+  kind CostCategoryKind
+
+  personnel Personnel[]
+}
+
+model StandardRate {
+  id            String    @id @default(cuid())
+  scope         RateScope
+  targetId      String
+  amount        Decimal   @db.Decimal(18, 4)
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+
+  createdAt DateTime @default(now())
+}
+
+model TransferMarkup {
+  id            String    @id @default(cuid())
+  fromHqId      String
+  toHqId        String
+  markupPct     Decimal   @db.Decimal(18, 4)
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+
+  fromHq Organization @relation("MarkupFrom", fields: [fromHqId], references: [id])
+  toHq   Organization @relation("MarkupTo", fields: [toHqId], references: [id])
+
+  @@unique([fromHqId, toHqId, effectiveFrom])
+}
+
+model Period {
+  id        String       @id @default(cuid())
+  yearMonth String       @unique
+  status    PeriodStatus
+  closedAt  DateTime?
+
+  costEntries       CostEntry[]
+  allocationRuns    AllocationRun[]
+  transferEntries   TransferEntry[]
+  varianceSnapshots VarianceSnapshot[]
+}
+
+model CostEntry {
+  id          String   @id @default(cuid())
+  personnelId String
+  projectId   String
+  periodId    String
+  date        DateTime
+  hours       Decimal  @db.Decimal(18, 4)
+  amount      Decimal  @db.Decimal(18, 4)
+
+  personnel Personnel @relation(fields: [personnelId], references: [id])
+  project   Project   @relation(fields: [projectId], references: [id])
+  period    Period    @relation(fields: [periodId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([personnelId, projectId, periodId])
+}
+
+model AllocationRule {
+  id            String           @id @default(cuid())
+  poolOrgId     String
+  allocationKey AllocationKey
+  method        AllocationMethod
+  sequence      Int?
+
+  poolOrg Organization @relation("PoolOrg", fields: [poolOrgId], references: [id])
+}
+
+model AllocationRun {
+  id             String           @id @default(cuid())
+  periodId       String
+  method         AllocationMethod
+  inputChecksum  String
+  outputChecksum String
+  runtimeMs      Int
+
+  period  Period             @relation(fields: [periodId], references: [id])
+  results AllocationResult[]
+
+  createdAt DateTime @default(now())
+}
+
+model AllocationResult {
+  id            String  @id @default(cuid())
+  runId         String
+  fromPoolOrgId String
+  toProjectId   String
+  amount        Decimal @db.Decimal(18, 4)
+
+  run       AllocationRun @relation(fields: [runId], references: [id])
+  toProject Project       @relation(fields: [toProjectId], references: [id])
+}
+
+model TransferEntry {
+  id           String            @id @default(cuid())
+  periodId     String
+  fromHqId     String
+  toHqId       String
+  personnelId  String
+  hours        Decimal           @db.Decimal(18, 4)
+  standardRate Decimal           @db.Decimal(18, 4)
+  markupPct    Decimal           @db.Decimal(18, 4)
+  amount       Decimal           @db.Decimal(18, 4)
+  direction    TransferDirection
+
+  period    Period       @relation(fields: [periodId], references: [id])
+  fromHq    Organization @relation("TransferFrom", fields: [fromHqId], references: [id])
+  toHq      Organization @relation("TransferTo", fields: [toHqId], references: [id])
+  personnel Personnel    @relation(fields: [personnelId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model VarianceSnapshot {
+  id               String  @id @default(cuid())
+  periodId         String
+  scope            String
+  priceEffect      Decimal @db.Decimal(18, 4)
+  volumeEffect     Decimal @db.Decimal(18, 4)
+  mixEffect        Decimal @db.Decimal(18, 4)
+  efficiencyEffect Decimal @db.Decimal(18, 4)
+  residual         Decimal @db.Decimal(18, 4)
+
+  period Period @relation(fields: [periodId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  entityType   String
+  entityId     String
+  action       String
+  before       Json?
+  after        Json?
+  actorPersona String
+  at           DateTime @default(now())
+
+  @@index([entityType, entityId])
+}

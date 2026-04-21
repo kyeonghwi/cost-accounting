@@ -11,7 +11,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:migrate": "prisma migrate dev",
+    "db:seed:small": "SEED_PROFILE=small prisma db seed",
+    "db:seed:full": "SEED_PROFILE=full prisma db seed",
+    "db:reset": "prisma migrate reset --force"
   },
   "dependencies": {
     "next": "14",
