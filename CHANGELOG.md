@@ -1,5 +1,59 @@
 # Changelog — cost-accounting
 
+## [Waves 4–7] 2026-04-21 — Close Workflow + Full UI + Export + Tests (SPEC-COST-001 complete)
+
+### Added
+
+**T7 — Monthly Close Workflow**
+- `lib/close/workflow.ts` — `runClose(periodId)`: allocation + transfer entries in one `prisma.$transaction`; Period state machine (OPEN → CLOSED)
+- `app/close/page.tsx` — Period selector, run button, close history (last 10 runs)
+- `app/close/actions.ts` — Server actions: `closeAction()`, `getCloseHistory()`
+- Tests: `tests/unit/close/workflow.test.ts`, `tests/integration/close-workflow.test.ts`
+
+**T8 — Layout, Demo Mode, Persona**
+- `app/layout.tsx` — Adds `PersonaProvider` wrapper and sticky `DemoBanner`
+- `app/page.tsx` — Persona-aware navigation hub (4 role views)
+- `app/(demo)/page.tsx` — Persona picker landing page
+- `lib/persona.tsx` — `PersonaProvider` + `usePersona` hook (localStorage, 4 roles: Executive / Controller / PM / Cost Accountant)
+- `lib/audit.ts` — `logAudit()` writes `AuditLog` rows for all master data mutations
+- `components/demo/DemoBanner.tsx` — Sticky top banner with persona label
+- `components/demo/PersonaSwitcher.tsx` — Dropdown persona switcher
+
+**T9 — Dashboards**
+- `app/dashboard/enterprise/page.tsx` — Enterprise consolidated P&L with HQ breakdown
+- `app/dashboard/hq/[id]/page.tsx` — HQ cost drilldown (direct + allocated + transfer)
+- `app/dashboard/project/[id]/page.tsx` — Project budget vs actual vs standard, personnel list
+- `app/dashboard/personnel/[id]/page.tsx` — Personnel utilization and cost entries
+- `app/dashboard/variance/page.tsx` — Variance factor analysis (four-way decomposition chart)
+- `components/charts/VarianceBarChart.tsx` — Recharts four-way variance bar chart
+
+**T10 — Master Data UI**
+- `app/(master)/layout.tsx` — Nav sidebar for all master data modules
+- `app/(master)/cost-entries/page.tsx` + `actions.ts` — CostEntry list + CRUD server actions
+- `app/(master)/organizations/page.tsx` — Organization hierarchy browser
+- `app/(master)/personnel/page.tsx`, `projects/page.tsx`, `standard-rates/page.tsx`, `transfer-markups/page.tsx`
+
+**T11 — Export + Polish**
+- `lib/export/csv.ts` — CSV serializer (papaparse, browser-only)
+- `lib/export/xlsx.ts` — Excel serializer (SheetJS)
+- `components/export/ExportButton.tsx` — Download button (CSV / Excel format toggle)
+- Tests: `tests/unit/export/csv.test.ts`
+- `lib/prisma.ts` — Singleton `PrismaClient` (dev hot-reload safe)
+
+**T12 — Performance + Smoke Tests**
+- `tests/integration/allocation-perf.test.ts` — Allocation throughput benchmark (full dataset)
+- `tests/integration/allocation-determinism.test.ts`, `reconciliation.test.ts`
+- `tests/e2e/smoke.spec.ts`, `demo-banner.spec.ts`, `drill-enterprise-to-personnel.spec.ts`
+- `tests/unit/audit/audit.test.ts`
+- Coverage: 92% unit (178+ tests); DB-dependent modules excluded per `vitest.config.ts`
+
+### @AX Lifecycle
+
+- Added `@AX:CYCLE:1` to 4 open `@AX:TODO` tags (first sync cycle)
+- All ANCHOR fan_in counts verified (min 3 callers each)
+
+---
+
 ## [Wave 3] 2026-04-21 — Allocation + Transfer + Variance Engines (SPEC-COST-001)
 
 ### Added
