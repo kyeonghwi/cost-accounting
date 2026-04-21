@@ -17,6 +17,19 @@ export class Money extends Decimal {
   override toString(): string {
     return this.toFixed(MONEY_SCALE)
   }
+
+  // Arithmetic operations that return Money so callers retain the fixed-scale toString.
+  override plus(n: Decimal.Value): Money {
+    return new Money(super.plus(n).toFixed(MONEY_SCALE))
+  }
+
+  override minus(n: Decimal.Value): Money {
+    return new Money(super.minus(n).toFixed(MONEY_SCALE))
+  }
+
+  override times(n: Decimal.Value): Money {
+    return new Money(super.times(n).toFixed(MONEY_SCALE))
+  }
 }
 
 /**
@@ -28,6 +41,18 @@ export function money(value: Decimal | string | number): Money {
   const quantized = d.toDecimalPlaces(MONEY_SCALE, Decimal.ROUND_HALF_UP)
   return new Money(quantized.toFixed(MONEY_SCALE))
 }
+
+// Patch Decimal.prototype.plus so Money propagates through reduce-style accumulations
+// where the initial accumulator may be a plain `new Decimal('0')`.
+// Only activates when at least one operand is a Money instance.
+const _decPlus = Decimal.prototype.plus;
+(Decimal.prototype as any).plus = function (this: Decimal, n: Decimal.Value): Decimal {
+  const result = _decPlus.call(this, n) as Decimal;
+  if (this instanceof Money || (typeof n === 'object' && n !== null && n instanceof Money)) {
+    return new Money(result.toFixed(MONEY_SCALE));
+  }
+  return result;
+};
 
 export const zero = (): Decimal => new Decimal(0)
 

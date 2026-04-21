@@ -1,4 +1,5 @@
 import { Decimal } from '@prisma/client/runtime/library'
+import { money } from '../allocation/decimal'
 import { resolveMarkup } from './rate'
 import type { TransferMarkupRecord } from './rate'
 
@@ -52,7 +53,7 @@ export function computeTransferEntries(
 
     const markupPct = resolveMarkup(homeHqId, ownerHqId, markups)
     const multiplier = new Decimal('1').plus(markupPct)
-    const amount = entry.hours.times(entry.standardHourlyRate).times(multiplier)
+    const amount = money(entry.hours.times(entry.standardHourlyRate).times(multiplier))
 
     const shared = {
       fromHqId: homeHqId,
