@@ -32,3 +32,17 @@ prisma/migrations/dev.db
 .agents/plugins/
 .autopus/
 .mcp.json
+
+# Claude Code local/runtime files
+.claude/worktrees/
+.claude/settings.local.json
+
+# bkit runtime state
+.bkit/
+
+# Test coverage reports
+coverage/
+
+# Tooling lock files
+Interactive
+Working
