@@ -1,5 +1,4 @@
 // @AX:NOTE: [AUTO] page queries DB directly via prisma — if close logic grows, move DB reads into a dedicated query function in lib/close/
-// @AX:TODO: [AUTO] ClosePage has no test; consider an E2E or server component integration test covering the empty-history and populated-history paths
 import { prisma } from '@/lib/prisma'
 import { getCloseHistory } from './actions'
 import { CloseForm } from './CloseForm'

@@ -13,8 +13,6 @@ export interface TransferMarkupRecord {
  * markupPct is a fractional value (e.g., 0.15 means 15%).
  * Throws if no matching row is found (REQ-TP-03: fail loud for missing config).
  */
-// @AX:TODO: [AUTO] no unit test for the missing-markup throw path; REQ-TP-03 requires fail-loud behaviour but the error message format is untested and could silently regress
-// @AX:CYCLE:1
 export function resolveMarkup(
   fromHqId: string,
   toHqId: string,

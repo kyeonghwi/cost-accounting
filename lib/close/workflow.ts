@@ -11,6 +11,24 @@ import {
   loadOperatingTargets,
 } from '../allocation/runner.queries'
 
+// Type-safe guards replacing the previous unsafe `as unknown as Record<>` cast.
+// Production PrismaClient always has all tables; narrow test mocks may omit some.
+interface PrismaWithAllocationRules {
+  allocationRule: PrismaClient['allocationRule']
+}
+interface PrismaWithCostEntries {
+  costEntry: PrismaClient['costEntry']
+  transferMarkup: PrismaClient['transferMarkup']
+}
+
+function hasAllocationRules(p: PrismaClient): p is PrismaClient & PrismaWithAllocationRules {
+  return 'allocationRule' in p && typeof (p as PrismaClient & PrismaWithAllocationRules).allocationRule?.findMany === 'function'
+}
+
+function hasCostEntries(p: PrismaClient): p is PrismaClient & PrismaWithCostEntries {
+  return 'costEntry' in p && typeof (p as PrismaClient & PrismaWithCostEntries).costEntry?.findMany === 'function'
+}
+
 export interface CloseResult {
   periodId: string
   status: 'CLOSED'
@@ -42,18 +60,14 @@ export async function runCloseWorkflow(
 
   const startedAt = Date.now()
 
-  // @AX:WARN: [AUTO] unsafe cast — prisma as unknown as Record used for duck-typing table availability; breaks if Prisma client interface changes
-  // @AX:NOTE: [AUTO] duck-typing guard for narrow test mocks — tables absent in mock clients return empty arrays; real PrismaClient always has these tables
-  // Load allocation inputs — use empty arrays if the client does not expose
-  // these tables (e.g., narrow test mocks).
-  const prismaAny = prisma as unknown as Record<string, Record<string, unknown>>
-  const hasAllocationRule = typeof prismaAny['allocationRule']?.['findMany'] === 'function'
-
+  // Load allocation inputs — use empty arrays for narrow test mocks that do not
+  // expose the allocation tables. hasAllocationRules uses a typed interface check
+  // rather than an unsafe cast.
   const [rules, poolAmounts, targets]: [
     Awaited<ReturnType<typeof loadAllocationRules>>,
     Pool[],
     DirectTarget[],
-  ] = hasAllocationRule
+  ] = hasAllocationRules(prisma)
     ? await Promise.all([
         loadAllocationRules(prisma),
         loadPoolAmounts(prisma, periodId) as Promise<Pool[]>,
@@ -88,10 +102,8 @@ export async function runCloseWorkflow(
   const outputChecksum = checksumOutput(outputForChecksum)
   const runtimeMs = Date.now() - startedAt
 
-  // Load cost entries and markups for transfer pricing — skip if tables unavailable.
-  const hasCostEntry = typeof prismaAny['costEntry']?.['findMany'] === 'function'
-
-  const transferEntries = hasCostEntry
+  // Load cost entries and markups for transfer pricing — skip for narrow test mocks.
+  const transferEntries = hasCostEntries(prisma)
     ? await loadTransferEntries(prisma, periodId)
     : []
 

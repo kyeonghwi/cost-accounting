@@ -20,6 +20,11 @@ export function PersonaSwitcher() {
           </option>
         ))}
       </select>
+      {persona === 'viewer' && (
+        <span className="rounded bg-warn-bg border border-warn-border px-1.5 py-0.5 text-[10px] font-medium text-warn-text">
+          조회 전용
+        </span>
+      )}
     </div>
   )
 }
