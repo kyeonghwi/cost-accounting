@@ -28,18 +28,18 @@ export default async function PersonnelDetailPage({ params }: Props) {
   } catch { /* DB not available in build */ }
 
   if (!person) {
-    return <div className="p-8 text-sm text-text-3 italic">Personnel not found.</div>
+    return <div className="p-8 text-sm text-text-3 italic">인원을 찾을 수 없습니다.</div>
   }
 
   return (
     <div data-testid="personnel-detail" className="p-8">
       <h1 className="mb-6 font-display text-2xl font-semibold tracking-tight text-text-1">
-        Personnel Detail
+        인원 상세
       </h1>
 
       <dl className="mb-8 grid grid-cols-2 gap-4 text-sm">
         <div>
-          <dt className="mb-1 text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Name</dt>
+          <dt className="mb-1 text-xs font-semibold uppercase tracking-[0.06em] text-text-3">이름</dt>
           <dd>
             <span data-testid="personnel-name" className="font-medium text-text-1">
               {person.name}
@@ -48,35 +48,35 @@ export default async function PersonnelDetailPage({ params }: Props) {
         </div>
         <div>
           <dt className="mb-1 text-xs font-semibold uppercase tracking-[0.06em] text-text-3">
-            Standard Hourly Rate
+            표준 시간당 단가
           </dt>
           <dd>
             <span data-testid="personnel-standard-rate" className="tabular-nums text-text-1">
-              {rate ? `$${Number(rate.amount).toFixed(2)}/hr` : 'No rate on file'}
+              {rate ? `$${Number(rate.amount).toFixed(2)}/시간` : '등록된 단가 없음'}
             </span>
           </dd>
         </div>
       </dl>
 
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
-        Recent Cost Entries
+        최근 비용 항목
       </h2>
       {entries.length === 0 ? (
-        <p className="text-sm text-text-3 italic">No cost entries found.</p>
+        <p className="text-sm text-text-3 italic">비용 항목이 없습니다.</p>
       ) : (
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border-strong">
-              <th className="pb-2.5 pr-4 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Date</th>
-              <th className="pb-2.5 pr-4 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Hours</th>
-              <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Amount</th>
+              <th className="pb-2.5 pr-4 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">날짜</th>
+              <th className="pb-2.5 pr-4 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">시간</th>
+              <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">금액</th>
             </tr>
           </thead>
           <tbody>
             {entries.map((e) => (
               <tr key={e.id} className="border-b border-border last:border-0 hover:bg-surface-alt transition-colors">
                 <td className="py-2.5 pr-4 tabular-nums text-xs text-text-2">
-                  {new Date(e.date).toLocaleDateString()}
+                  {new Date(e.date).toLocaleDateString('ko-KR')}
                 </td>
                 <td className="py-2.5 pr-4 text-right tabular-nums text-text-2">{Number(e.hours).toFixed(1)}</td>
                 <td className="py-2.5 text-right tabular-nums font-medium text-text-1">${Number(e.amount).toFixed(2)}</td>

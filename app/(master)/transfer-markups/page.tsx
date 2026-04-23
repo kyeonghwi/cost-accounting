@@ -54,40 +54,40 @@ export default async function TransferMarkupsPage() {
 
   return (
     <div data-testid="transfer-markups-page">
-      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Transfer Markups</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">이전 마크업</h1>
 
       <form action={createTransferMarkup} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Transfer Markup</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">새 이전 마크업</h2>
         <div className="flex flex-wrap gap-3">
           <select name="fromHqId" required className={INPUT_CLASS}>
-            <option value="">From HQ…</option>
+            <option value="">출발 본부…</option>
             {hqOrgs.map((o) => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
           <select name="toHqId" required className={INPUT_CLASS}>
-            <option value="">To HQ…</option>
+            <option value="">도착 본부…</option>
             {hqOrgs.map((o) => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
-          <input name="markupPct" required placeholder="Markup % (e.g. 0.15)" inputMode="decimal" className={`w-40 ${INPUT_CLASS}`} />
+          <input name="markupPct" required placeholder="마크업 % (예: 0.15)" inputMode="decimal" className={`w-40 ${INPUT_CLASS}`} />
           <input name="effectiveFrom" required type="datetime-local" className={INPUT_CLASS} />
           <input name="effectiveTo" type="datetime-local" className={INPUT_CLASS} />
         </div>
         <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
-          Create
+          생성
         </button>
       </form>
 
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-strong">
-            <th className={`${TH_CLASS} pr-4`}>From HQ</th>
-            <th className={`${TH_CLASS} pr-4`}>To HQ</th>
-            <th className={`${TH_CLASS} pr-4`}>Markup %</th>
-            <th className={`${TH_CLASS} pr-4`}>From</th>
-            <th className={TH_CLASS}>To</th>
+            <th className={`${TH_CLASS} pr-4`}>출발 본부</th>
+            <th className={`${TH_CLASS} pr-4`}>도착 본부</th>
+            <th className={`${TH_CLASS} pr-4`}>마크업 %</th>
+            <th className={`${TH_CLASS} pr-4`}>시작일</th>
+            <th className={TH_CLASS}>종료일</th>
           </tr>
         </thead>
         <tbody>
@@ -102,7 +102,7 @@ export default async function TransferMarkupsPage() {
           ))}
           {markups.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-4 text-center text-xs text-text-3 italic">No transfer markups yet</td>
+              <td colSpan={5} className="py-4 text-center text-xs text-text-3 italic">이전 마크업이 없습니다</td>
             </tr>
           )}
         </tbody>

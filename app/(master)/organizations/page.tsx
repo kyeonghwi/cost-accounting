@@ -40,36 +40,36 @@ export default async function OrganizationsPage() {
 
   return (
     <div data-testid="organizations-page">
-      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Organizations</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">조직</h1>
 
       <form action={createOrganization} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Organization</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">새 조직</h2>
         <div className="flex flex-wrap gap-3">
-          <input name="name" required placeholder="Name" className={`flex-1 ${INPUT_CLASS}`} />
+          <input name="name" required placeholder="이름" className={`flex-1 ${INPUT_CLASS}`} />
           <select name="kind" required className={INPUT_CLASS}>
-            <option value="">Kind…</option>
-            <option value="ENTERPRISE">Enterprise</option>
-            <option value="HQ">HQ</option>
-            <option value="DEPARTMENT">Department</option>
+            <option value="">종류…</option>
+            <option value="ENTERPRISE">기업</option>
+            <option value="HQ">본부</option>
+            <option value="DEPARTMENT">부서</option>
           </select>
           <select name="parentId" className={INPUT_CLASS}>
-            <option value="">No parent</option>
+            <option value="">상위 없음</option>
             {allOrgs.map((o) => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
         </div>
         <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
-          Create
+          생성
         </button>
       </form>
 
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-strong">
-            <th className={`${TH_CLASS} pr-4`}>Name</th>
-            <th className={`${TH_CLASS} pr-4`}>Kind</th>
-            <th className={TH_CLASS}>Parent</th>
+            <th className={`${TH_CLASS} pr-4`}>이름</th>
+            <th className={`${TH_CLASS} pr-4`}>종류</th>
+            <th className={TH_CLASS}>상위</th>
           </tr>
         </thead>
         <tbody>
@@ -82,7 +82,7 @@ export default async function OrganizationsPage() {
           ))}
           {orgs.length === 0 && (
             <tr>
-              <td colSpan={3} className="py-4 text-center text-xs text-text-3 italic">No organizations yet</td>
+              <td colSpan={3} className="py-4 text-center text-xs text-text-3 italic">조직이 없습니다</td>
             </tr>
           )}
         </tbody>

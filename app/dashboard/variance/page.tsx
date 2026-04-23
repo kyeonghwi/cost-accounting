@@ -9,7 +9,7 @@ function signClass(n: number) {
 }
 
 function fmt(n: number) {
-  return n.toLocaleString('en-US', {
+  return n.toLocaleString('ko-KR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
     signDisplay: 'exceptZero',
@@ -29,7 +29,7 @@ export default async function VarianceDashboard() {
   if (!snapshots.length) {
     return (
       <div data-testid="variance-dashboard" className="p-8 text-sm text-text-3 italic">
-        No variance data. Run a period close with variance analysis first.
+        차이 데이터 없음. 먼저 차이 분석이 포함된 기간 마감을 실행하세요.
       </div>
     )
   }
@@ -45,10 +45,10 @@ export default async function VarianceDashboard() {
     <div data-testid="variance-dashboard" className="p-8">
       <div className="mb-8">
         <h1 className="font-display text-2xl font-semibold tracking-tight text-text-1">
-          Variance Analysis
+          차이 분석
         </h1>
         <p className="mt-1 text-xs uppercase tracking-[0.06em] text-text-3">
-          Price · Volume · Mix Effects
+          가격 · 수량 · 구성 효과
         </p>
       </div>
 
@@ -59,12 +59,12 @@ export default async function VarianceDashboard() {
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-strong">
-            <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Scope</th>
-            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Price</th>
-            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Volume</th>
-            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Mix</th>
-            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Efficiency</th>
-            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Residual</th>
+            <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">범위</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">가격</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">수량</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">구성</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">효율</th>
+            <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">잔차</th>
           </tr>
         </thead>
         <tbody>

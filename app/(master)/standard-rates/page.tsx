@@ -51,46 +51,46 @@ export default async function StandardRatesPage() {
 
   return (
     <div data-testid="standard-rates-page">
-      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Standard Rates</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">표준 단가</h1>
 
       <form action={createStandardRate} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Standard Rate</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">새 표준 단가</h2>
         <div className="flex flex-wrap gap-3">
           <select name="scope" required className={INPUT_CLASS}>
-            <option value="">Scope…</option>
-            <option value="PERSONNEL">Personnel</option>
-            <option value="CATEGORY">Category</option>
+            <option value="">범위…</option>
+            <option value="PERSONNEL">인원</option>
+            <option value="CATEGORY">카테고리</option>
           </select>
           <select name="targetId" required className={INPUT_CLASS}>
-            <option value="">Target…</option>
-            <optgroup label="Personnel">
+            <option value="">대상…</option>
+            <optgroup label="인원">
               {personnel.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </optgroup>
-            <optgroup label="Category">
+            <optgroup label="카테고리">
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>{c.code}</option>
               ))}
             </optgroup>
           </select>
-          <input name="amount" required placeholder="Rate (e.g. 75.0000)" inputMode="decimal" className={`w-36 ${INPUT_CLASS}`} />
+          <input name="amount" required placeholder="단가 (예: 75.0000)" inputMode="decimal" className={`w-36 ${INPUT_CLASS}`} />
           <input name="effectiveFrom" required type="datetime-local" className={INPUT_CLASS} />
           <input name="effectiveTo" type="datetime-local" className={INPUT_CLASS} />
         </div>
         <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
-          Create
+          생성
         </button>
       </form>
 
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-strong">
-            <th className={`${TH_CLASS} pr-4`}>Scope</th>
-            <th className={`${TH_CLASS} pr-4`}>Target</th>
-            <th className={`${TH_CLASS} pr-4`}>Rate</th>
-            <th className={`${TH_CLASS} pr-4`}>From</th>
-            <th className={TH_CLASS}>To</th>
+            <th className={`${TH_CLASS} pr-4`}>범위</th>
+            <th className={`${TH_CLASS} pr-4`}>대상</th>
+            <th className={`${TH_CLASS} pr-4`}>단가</th>
+            <th className={`${TH_CLASS} pr-4`}>시작일</th>
+            <th className={TH_CLASS}>종료일</th>
           </tr>
         </thead>
         <tbody>
@@ -105,7 +105,7 @@ export default async function StandardRatesPage() {
           ))}
           {rates.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-4 text-center text-xs text-text-3 italic">No rates yet</td>
+              <td colSpan={5} className="py-4 text-center text-xs text-text-3 italic">단가가 없습니다</td>
             </tr>
           )}
         </tbody>

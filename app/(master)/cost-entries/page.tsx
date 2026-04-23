@@ -37,27 +37,27 @@ export default async function CostEntriesPage() {
 
   return (
     <div data-testid="cost-entries-page">
-      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Cost Entries</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">비용 항목</h1>
 
       <PersonaGuard
         allow={['accountant']}
         fallback={
           <p className="mb-6 text-xs text-text-3 italic">
-            Switch to Cost Accountant persona to create entries.
+            비용 항목을 생성하려면 원가담당자 페르소나로 전환하세요.
           </p>
         }
       >
         <form action={submitCostEntry} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Cost Entry</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">새 비용 항목</h2>
           <div className="flex flex-wrap gap-3">
             <select name="personnelId" required className={INPUT_CLASS}>
-              <option value="">Personnel…</option>
+              <option value="">인원…</option>
               {personnel.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
             <select name="projectId" required className={INPUT_CLASS}>
-              <option value="">Project…</option>
+              <option value="">프로젝트…</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>{p.code} — {p.name}</option>
               ))}
@@ -66,32 +66,32 @@ export default async function CostEntriesPage() {
             <input
               name="hours"
               required
-              placeholder="Hours (e.g. 8)"
+              placeholder="시간 (예: 8)"
               inputMode="decimal"
               className={`w-28 ${INPUT_CLASS}`}
             />
           </div>
           <p className="text-xs text-text-3">
-            Amount = hours × standard rate. Period is resolved from date automatically.
+            금액 = 시간 × 표준 단가. 기간은 날짜로 자동 결정됩니다.
           </p>
           <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
-            Create
+            생성
           </button>
         </form>
       </PersonaGuard>
 
       <div className="mb-2 text-xs text-text-3">
-        Showing {Math.min(entries.length, TAKE)} of {totalCount} entries
+        전체 {totalCount}개 중 {Math.min(entries.length, TAKE)}개 표시
       </div>
 
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-strong">
-            <th className={`${TH_CLASS} pr-4`}>Date</th>
-            <th className={`${TH_CLASS} pr-4`}>Personnel</th>
-            <th className={`${TH_CLASS} pr-4`}>Project</th>
-            <th className={`${TH_CLASS} pr-4`}>Hours</th>
-            <th className={TH_CLASS}>Amount</th>
+            <th className={`${TH_CLASS} pr-4`}>날짜</th>
+            <th className={`${TH_CLASS} pr-4`}>인원</th>
+            <th className={`${TH_CLASS} pr-4`}>프로젝트</th>
+            <th className={`${TH_CLASS} pr-4`}>시간</th>
+            <th className={TH_CLASS}>금액</th>
           </tr>
         </thead>
         <tbody>
@@ -106,7 +106,7 @@ export default async function CostEntriesPage() {
           ))}
           {entries.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-4 text-center text-xs text-text-3 italic">No cost entries yet</td>
+              <td colSpan={5} className="py-4 text-center text-xs text-text-3 italic">비용 항목이 없습니다</td>
             </tr>
           )}
         </tbody>

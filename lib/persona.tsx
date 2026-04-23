@@ -7,9 +7,9 @@ export type Persona = 'accountant' | 'analyst' | 'viewer'
 export const PERSONAS: Persona[] = ['accountant', 'analyst', 'viewer']
 
 export const PERSONA_LABELS: Record<Persona, string> = {
-  accountant: 'Cost Accountant',
-  analyst: 'Financial Analyst',
-  viewer: 'View Only',
+  accountant: '원가담당자',
+  analyst: '재무분석가',
+  viewer: '조회만',
 }
 
 // @AX:NOTE: [AUTO] magic constants — STORAGE_KEY is the localStorage key for persona persistence; DEFAULT_PERSONA sets the fallback when no stored value exists

@@ -20,7 +20,7 @@ function SubmitButton() {
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
         </svg>
       )}
-      {pending ? 'Running…' : 'Run Close'}
+      {pending ? '실행 중…' : '마감 실행'}
     </button>
   )
 }
@@ -28,7 +28,7 @@ function SubmitButton() {
 function formatYearMonth(ym: string): string {
   const [year, month] = ym.split('-')
   const date = new Date(Number(year), Number(month) - 1)
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  return date.toLocaleDateString('ko-KR', { month: 'long', year: 'numeric' })
 }
 
 const LABEL_CLASS = 'block text-xs font-semibold uppercase tracking-[0.06em] text-text-3 mb-1.5'
@@ -45,21 +45,21 @@ export function CloseForm({ openPeriods }: Props) {
   return (
     <section>
       <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
-        Run Close
+        마감 실행
       </h2>
 
       {state?.ok === true && (
         <div className="mb-5 rounded border border-positive/30 bg-positive-bg px-4 py-3 text-sm text-positive space-y-1">
           <p>
-            Period closed. Run ID:{' '}
+            기간 마감 완료. 실행 ID:{' '}
             <code className="font-mono text-xs bg-white/60 px-1 py-0.5 rounded">
               {state.result.allocationRunId}
             </code>
-            {' '}· Transfer entries: {state.result.transferCount}
+            {' '}· 이전 항목: {state.result.transferCount}
           </p>
           {state.result.emptyPool && (
             <p className="text-xs" style={{ color: 'var(--color-warn-text)' }}>
-              No overhead pool costs found — period closed with zero allocation results.
+              간접비 풀 비용이 없습니다 — 배부 결과 없이 기간 마감됩니다.
             </p>
           )}
         </div>
@@ -73,7 +73,7 @@ export function CloseForm({ openPeriods }: Props) {
 
       {!canClose && (
         <p className="mb-4 text-xs text-text-3 italic">
-          Switch to Cost Accountant persona to run a close.
+          마감을 실행하려면 원가담당자 페르소나로 전환하세요.
         </p>
       )}
 
@@ -82,9 +82,9 @@ export function CloseForm({ openPeriods }: Props) {
         className={`flex flex-col gap-4 max-w-sm${!canClose ? ' opacity-40 pointer-events-none' : ''}`}
       >
         <div>
-          <label htmlFor="periodId" className={LABEL_CLASS}>Period</label>
+          <label htmlFor="periodId" className={LABEL_CLASS}>기간</label>
           <select id="periodId" name="periodId" required className={SELECT_CLASS}>
-            <option value="">Select a period</option>
+            <option value="">기간 선택</option>
             {openPeriods.map((p) => (
               <option key={p.id} value={p.id}>
                 {formatYearMonth(p.yearMonth)}
@@ -94,10 +94,10 @@ export function CloseForm({ openPeriods }: Props) {
         </div>
 
         <div>
-          <label htmlFor="method" className={LABEL_CLASS}>Allocation Method</label>
+          <label htmlFor="method" className={LABEL_CLASS}>배부 방법</label>
           <select id="method" name="method" className={SELECT_CLASS}>
-            <option value="DIRECT">Direct — distribute pool costs to projects</option>
-            <option value="STEP_DOWN">Step-Down — allocate service depts in sequence</option>
+            <option value="DIRECT">직접법 — 풀 비용을 프로젝트에 직접 배부</option>
+            <option value="STEP_DOWN">단계배부법 — 서비스 부서를 순차적으로 배부</option>
           </select>
         </div>
 

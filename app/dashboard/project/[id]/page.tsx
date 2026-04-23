@@ -30,7 +30,7 @@ export default async function ProjectDashboard({ params }: Props) {
   } catch { /* DB not available in build */ }
 
   if (!project) {
-    return <div className="p-8 text-sm text-text-3 italic">Project not found.</div>
+    return <div className="p-8 text-sm text-text-3 italic">프로젝트를 찾을 수 없습니다.</div>
   }
 
   return (
@@ -38,17 +38,17 @@ export default async function ProjectDashboard({ params }: Props) {
       <div className="mb-8">
         <h1 className="font-display text-2xl font-semibold tracking-tight text-text-1">{project.name}</h1>
         <div className="mt-2 flex gap-6 text-xs text-text-3">
-          <span>Code: <span className="font-mono text-text-2">{project.code}</span></span>
-          <span>Budget: <span className="tabular-nums text-text-2">${Number(project.budgetAmount).toLocaleString('en-US', { minimumFractionDigits: 0 })}</span></span>
+          <span>코드: <span className="font-mono text-text-2">{project.code}</span></span>
+          <span>예산: <span className="tabular-nums text-text-2">${Number(project.budgetAmount).toLocaleString('ko-KR', { minimumFractionDigits: 0 })}</span></span>
         </div>
       </div>
 
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
-        Assigned Personnel
+        배정 인원
       </h2>
 
       {personnelList.length === 0 ? (
-        <p className="text-sm text-text-3 italic">No personnel with cost entries on this project.</p>
+        <p className="text-sm text-text-3 italic">이 프로젝트에 비용 항목이 있는 인원이 없습니다.</p>
       ) : (
         <table className="w-full text-sm">
           <thead>
@@ -66,7 +66,7 @@ export default async function ProjectDashboard({ params }: Props) {
                     href={`/dashboard/personnel/${p.id}`}
                     className="text-xs text-accent hover:text-accent-hover transition-colors"
                   >
-                    Details →
+                    상세 →
                   </Link>
                 </td>
               </tr>

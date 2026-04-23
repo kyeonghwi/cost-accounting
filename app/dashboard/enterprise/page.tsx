@@ -42,7 +42,7 @@ export default async function EnterpriseDashboard() {
   } catch { /* DB not available in build */ }
 
   if (!hqList.length) {
-    return <div className="p-8 text-sm text-text-3 italic">No data — run seed first.</div>
+    return <div className="p-8 text-sm text-text-3 italic">데이터 없음 — 시드를 먼저 실행하세요.</div>
   }
 
   const exportData: Record<string, unknown>[] = hqList.map((hq) => ({
@@ -57,27 +57,27 @@ export default async function EnterpriseDashboard() {
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-text-1">
-            Enterprise Dashboard
+            전사 대시보드
           </h1>
           <p className="mt-1 text-xs uppercase tracking-[0.06em] text-text-3">
-            Cost Roll-Up by Headquarters
+            본부별 비용 집계
           </p>
         </div>
         <ExportButton
           data={exportData}
           columns={EXPORT_COLUMNS}
           filename="enterprise-costs.csv"
-          label="Export CSV"
+          label="CSV 내보내기"
         />
       </div>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-strong">
             <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">
-              Headquarters
+              본부
             </th>
             <th className="pb-2.5 text-right text-xs font-semibold uppercase tracking-[0.06em] text-text-3">
-              Total Cost
+              총 비용
             </th>
           </tr>
         </thead>
@@ -97,7 +97,7 @@ export default async function EnterpriseDashboard() {
                 </Link>
               </td>
               <td className="py-3 text-right tabular-nums font-medium text-text-1">
-                ${Number(hq.totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${Number(hq.totalCost).toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
             </tr>
           ))}
@@ -105,10 +105,10 @@ export default async function EnterpriseDashboard() {
         <tfoot>
           <tr className="border-t border-border-strong">
             <td className="pt-3 text-xs font-semibold uppercase tracking-[0.06em] text-text-3">
-              Grand Total
+              합계
             </td>
             <td className="pt-3 text-right tabular-nums font-semibold text-text-1">
-              ${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${grandTotal.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
           </tr>
         </tfoot>

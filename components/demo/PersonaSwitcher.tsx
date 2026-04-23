@@ -7,7 +7,7 @@ export function PersonaSwitcher() {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-text-3">Viewing as:</span>
+      <span className="text-xs text-text-3">현재 역할:</span>
       <select
         value={persona}
         onChange={(e) => setPersona(e.target.value as typeof persona)}

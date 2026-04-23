@@ -44,15 +44,15 @@ export default async function ProjectsPage() {
 
   return (
     <div data-testid="projects-page">
-      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Projects</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">프로젝트</h1>
 
       <form action={createProject} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Project</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">새 프로젝트</h2>
         <div className="flex flex-wrap gap-3">
-          <input name="code" required placeholder="Code" className={`w-28 ${INPUT_CLASS}`} />
-          <input name="name" required placeholder="Name" className={`flex-1 ${INPUT_CLASS}`} />
+          <input name="code" required placeholder="코드" className={`w-28 ${INPUT_CLASS}`} />
+          <input name="name" required placeholder="이름" className={`flex-1 ${INPUT_CLASS}`} />
           <select name="ownerHqId" required className={INPUT_CLASS}>
-            <option value="">Owner HQ…</option>
+            <option value="">소유 본부…</option>
             {hqOrgs.map((o) => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
@@ -60,23 +60,23 @@ export default async function ProjectsPage() {
           <input
             name="budgetAmount"
             required
-            placeholder="Budget (e.g. 100000)"
+            placeholder="예산 (예: 100000)"
             inputMode="decimal"
             className={`w-40 ${INPUT_CLASS}`}
           />
         </div>
         <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
-          Create
+          생성
         </button>
       </form>
 
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-strong">
-            <th className={`${TH_CLASS} pr-4`}>Code</th>
-            <th className={`${TH_CLASS} pr-4`}>Name</th>
-            <th className={`${TH_CLASS} pr-4`}>Owner HQ</th>
-            <th className={TH_CLASS}>Budget</th>
+            <th className={`${TH_CLASS} pr-4`}>코드</th>
+            <th className={`${TH_CLASS} pr-4`}>이름</th>
+            <th className={`${TH_CLASS} pr-4`}>소유 본부</th>
+            <th className={TH_CLASS}>예산</th>
           </tr>
         </thead>
         <tbody>
@@ -86,13 +86,13 @@ export default async function ProjectsPage() {
               <td className="py-2.5 pr-4 font-medium text-text-1">{p.name}</td>
               <td className="py-2.5 pr-4 text-text-2">{p.ownerHq.name}</td>
               <td className="py-2.5 tabular-nums text-text-2">
-                ${Number(p.budgetAmount).toLocaleString('en-US', { minimumFractionDigits: 0 })}
+                ${Number(p.budgetAmount).toLocaleString('ko-KR', { minimumFractionDigits: 0 })}
               </td>
             </tr>
           ))}
           {projects.length === 0 && (
             <tr>
-              <td colSpan={4} className="py-4 text-center text-xs text-text-3 italic">No projects yet</td>
+              <td colSpan={4} className="py-4 text-center text-xs text-text-3 italic">프로젝트가 없습니다</td>
             </tr>
           )}
         </tbody>

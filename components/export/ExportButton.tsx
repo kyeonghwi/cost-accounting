@@ -9,7 +9,7 @@ type Props = {
   label?: string
 }
 
-export function ExportButton({ data, columns, filename, label = 'Export CSV' }: Props) {
+export function ExportButton({ data, columns, filename, label = 'CSV 내보내기' }: Props) {
   function handleClick() {
     const csv = toCsv(data, columns)
     downloadCsv(filename, csv)

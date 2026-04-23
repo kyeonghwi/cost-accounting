@@ -22,20 +22,20 @@ const barlowSemiCondensed = Barlow_Semi_Condensed({
 })
 
 export const metadata: Metadata = {
-  title: 'Cost Accounting',
-  description: 'Portfolio prototype for cost/management accounting',
+  title: '원가회계',
+  description: '원가/관리회계 포트폴리오 프로토타입',
 }
 
 const NAV = [
-  { href: '/dashboard/enterprise', label: 'Enterprise' },
-  { href: '/close', label: 'Period Close' },
-  { href: '/dashboard/variance', label: 'Variance' },
-  { href: '/organizations', label: 'Master Data' },
+  { href: '/dashboard/enterprise', label: '전사' },
+  { href: '/close', label: '기간 마감' },
+  { href: '/dashboard/variance', label: '차이 분석' },
+  { href: '/organizations', label: '마스터 데이터' },
 ]
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${barlow.variable} ${barlowSemiCondensed.variable}`}>
+    <html lang="ko" className={`${barlow.variable} ${barlowSemiCondensed.variable}`}>
       <body className="bg-bg text-text-1 font-sans antialiased">
         <PersonaProvider>
           {/* @AX:NOTE: [AUTO] DemoBanner is unconditionally rendered — add an env/config guard before shipping to production */}
@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 href="/"
                 className="font-display font-semibold text-xs tracking-[0.08em] text-text-1 shrink-0 uppercase"
               >
-                Cost Accounting
+                원가회계
               </Link>
               <nav className="flex items-center flex-1">
                 {NAV.map((item) => (

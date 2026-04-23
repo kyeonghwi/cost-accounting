@@ -45,36 +45,36 @@ export default async function PersonnelPage() {
 
   return (
     <div data-testid="personnel-page">
-      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">Personnel</h1>
+      <h1 className="mb-6 font-display text-xl font-semibold tracking-tight text-text-1">인원</h1>
 
       <form action={createPersonnel} className="mb-8 space-y-3 rounded border border-border bg-surface p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">New Personnel</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-3">새 인원</h2>
         <div className="flex flex-wrap gap-3">
-          <input name="name" required placeholder="Name" className={`flex-1 ${INPUT_CLASS}`} />
+          <input name="name" required placeholder="이름" className={`flex-1 ${INPUT_CLASS}`} />
           <select name="homeHqId" required className={INPUT_CLASS}>
-            <option value="">Home HQ…</option>
+            <option value="">소속 본부…</option>
             {hqOrgs.map((o) => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
           <select name="costCategoryId" required className={INPUT_CLASS}>
-            <option value="">Category…</option>
+            <option value="">카테고리…</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>{c.code} ({c.kind})</option>
             ))}
           </select>
         </div>
         <button type="submit" className="rounded bg-accent px-4 py-1.5 text-sm text-white hover:bg-accent-hover transition-colors">
-          Create
+          생성
         </button>
       </form>
 
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border-strong">
-            <th className={`${TH_CLASS} pr-4`}>Name</th>
-            <th className={`${TH_CLASS} pr-4`}>Home HQ</th>
-            <th className={TH_CLASS}>Cost Category</th>
+            <th className={`${TH_CLASS} pr-4`}>이름</th>
+            <th className={`${TH_CLASS} pr-4`}>소속 본부</th>
+            <th className={TH_CLASS}>비용 카테고리</th>
           </tr>
         </thead>
         <tbody>
@@ -87,7 +87,7 @@ export default async function PersonnelPage() {
           ))}
           {personnel.length === 0 && (
             <tr>
-              <td colSpan={3} className="py-4 text-center text-xs text-text-3 italic">No personnel yet</td>
+              <td colSpan={3} className="py-4 text-center text-xs text-text-3 italic">인원이 없습니다</td>
             </tr>
           )}
         </tbody>

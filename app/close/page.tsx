@@ -7,7 +7,7 @@ import { CloseForm } from './CloseForm'
 function formatYearMonth(ym: string): string {
   const [year, month] = ym.split('-')
   const date = new Date(Number(year), Number(month) - 1)
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  return date.toLocaleDateString('ko-KR', { month: 'long', year: 'numeric' })
 }
 
 export default async function ClosePage() {
@@ -23,10 +23,10 @@ export default async function ClosePage() {
     <div data-testid="close-page" className="mx-auto max-w-3xl px-8 py-10 space-y-12">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight text-text-1">
-          Monthly Close
+          월 마감
         </h1>
         <p className="mt-1 text-xs uppercase tracking-[0.06em] text-text-3">
-          Overhead Allocation · Period Lock
+          간접비 배부 · 기간 잠금
         </p>
       </div>
 
@@ -34,18 +34,18 @@ export default async function ClosePage() {
 
       <section>
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-text-3">
-          Recent Runs
+          최근 실행
         </h2>
         {history.length === 0 ? (
-          <p className="text-sm text-text-3 italic">No runs yet.</p>
+          <p className="text-sm text-text-3 italic">실행 내역이 없습니다.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-strong">
-                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Date</th>
-                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Period</th>
-                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Method</th>
-                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">Status</th>
+                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">날짜</th>
+                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">기간</th>
+                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">방법</th>
+                <th className="pb-2.5 text-left text-xs font-semibold uppercase tracking-[0.06em] text-text-3">상태</th>
               </tr>
             </thead>
             <tbody>
