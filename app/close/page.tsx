@@ -11,13 +11,17 @@ function formatYearMonth(ym: string): string {
 }
 
 export default async function ClosePage() {
-  const [openPeriods, history] = await Promise.all([
-    prisma.period.findMany({
-      where: { status: 'OPEN' },
-      orderBy: { yearMonth: 'desc' },
-    }),
-    getCloseHistory(),
-  ])
+  let openPeriods: Awaited<ReturnType<typeof prisma.period.findMany>> = []
+  let history: Awaited<ReturnType<typeof getCloseHistory>> = []
+  try {
+    ;[openPeriods, history] = await Promise.all([
+      prisma.period.findMany({
+        where: { status: 'OPEN' },
+        orderBy: { yearMonth: 'desc' },
+      }),
+      getCloseHistory(),
+    ])
+  } catch { /* DB not available in build */ }
 
   return (
     <div data-testid="close-page" className="mx-auto max-w-3xl px-8 py-10 space-y-12">
