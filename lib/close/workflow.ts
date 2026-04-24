@@ -10,6 +10,8 @@ import {
   loadPoolAmounts,
   loadOperatingTargets,
 } from '../allocation/runner.queries'
+import { createVarianceSnapshots } from './variance-snapshot'
+import type { VarianceTx } from './variance-snapshot'
 
 // Type-safe guards replacing the previous unsafe `as unknown as Record<>` cast.
 // Production PrismaClient always has all tables; narrow test mocks may omit some.
@@ -29,12 +31,25 @@ function hasCostEntries(p: PrismaClient): p is PrismaClient & PrismaWithCostEntr
   return 'costEntry' in p && typeof (p as PrismaClient & PrismaWithCostEntries).costEntry?.findMany === 'function'
 }
 
+// Guard for the transaction-client subset needed by createVarianceSnapshots.
+// Narrow test mocks that omit costEntry or varianceSnapshot take the zero path.
+function hasTxVariance(tx: unknown): tx is VarianceTx {
+  if (tx === null || typeof tx !== 'object') return false
+  const t = tx as Record<string, unknown>
+  return (
+    typeof (t['varianceSnapshot'] as Record<string, unknown> | undefined)?.['createMany'] === 'function' &&
+    typeof (t['costEntry'] as Record<string, unknown> | undefined)?.['findMany'] === 'function' &&
+    typeof (t['period'] as Record<string, unknown> | undefined)?.['findFirst'] === 'function'
+  )
+}
+
 export interface CloseResult {
   periodId: string
   status: 'CLOSED'
   allocationRunId: string
   transferCount: number
   emptyPool: boolean
+  snapshotCount: number
 }
 
 // @AX:ANCHOR: [AUTO] monthly close entry point — fan_in: closeAction (actions.ts); changes here affect Period.status, AllocationRun, AllocationResult, TransferEntry atomically
@@ -111,7 +126,7 @@ export async function runCloseWorkflow(
   // The period.update inside uses WHERE status='OPEN' as the authoritative
   // double-close guard — a concurrent request that passes the pre-validation
   // above will fail here with P2025 if the period was already closed.
-  const { run, transferCount } = await prisma.$transaction(async (tx) => {
+  const { run, transferCount, snapshotCount } = await prisma.$transaction(async (tx) => {
     const created: AllocationRun = await tx.allocationRun.create({
       data: {
         periodId,
@@ -159,7 +174,12 @@ export async function runCloseWorkflow(
       data: { status: 'CLOSED', closedAt: new Date() },
     })
 
-    return { run: created, transferCount: count }
+    // REQ-PIPE-01: Create VarianceSnapshot rows in the same transaction so that
+    // failure rolls back the entire close (REQ-PIPE-04). Narrow test mocks that
+    // do not expose costEntry/varianceSnapshot/period.findFirst take count = 0.
+    const snapCount = hasTxVariance(tx) ? await createVarianceSnapshots(tx, periodId) : 0
+
+    return { run: created, transferCount: count, snapshotCount: snapCount }
   })
 
   return {
@@ -168,6 +188,7 @@ export async function runCloseWorkflow(
     allocationRunId: run.id,
     transferCount,
     emptyPool,
+    snapshotCount,
   }
 }
 
