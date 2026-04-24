@@ -1,5 +1,36 @@
 # Changelog — cost-accounting
 
+## [SPEC-PIPE-001] 2026-04-24 — Analysis Pipeline Completion
+
+Resolved the data pipeline break between the monthly close workflow and the variance/HQ dashboards.
+
+### Added
+
+**T1 — Close → VarianceSnapshot Generation**
+- `lib/close/variance-snapshot.ts` — `generateVarianceSnapshots()`: HQ-level + enterprise scope VarianceSnapshot records; `decomposeVariance(actual, previous, standard)` called inside the same transaction as close; previous-period fallback to zero baseline when no prior CLOSED period exists
+
+**T2 — Variance Dashboard Period Selector**
+- `app/dashboard/variance/page.tsx` — CLOSED period list rendered as `<select>` form; `?period=YYYY-MM` searchParam drives snapshot query; defaults to most-recent CLOSED period
+
+**T3 — HQ Dashboard Financial Summary**
+- `app/dashboard/hq/[id]/page.tsx` — financial summary card: direct cost, allocated cost, transfer credit, transfer charge, contribution margin; falls back to cumulative direct cost only when no CLOSED run exists
+
+**T4 — Tests**
+- `tests/unit/close/workflow.test.ts` — VarianceSnapshot creation assertion (`snapshotCount > 0`)
+- `tests/integration/close-workflow.test.ts` — end-to-end VarianceSnapshot DB record verification
+
+### Changed
+
+- `lib/close/workflow.ts` — integrates `generateVarianceSnapshots()` call inside `$transaction`; `CloseResult` extended with `snapshotCount: number`
+- All UI text translated to Korean (i18n wave)
+
+### @AX Lifecycle
+
+- Added `@AX:WARN`, `@AX:NOTE` tags to `lib/close/variance-snapshot.ts` (dual-pass aggregation warning, CLOSED status magic constant)
+- `lib/close/workflow.ts` `@AX:ANCHOR` updated to reflect new fan_in (closeAction)
+
+---
+
 ## [Waves 4–7] 2026-04-21 — Close Workflow + Full UI + Export + Tests (SPEC-COST-001 complete)
 
 ### Added
