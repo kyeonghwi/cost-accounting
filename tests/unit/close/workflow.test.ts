@@ -37,6 +37,56 @@ function buildMockPrisma(periodOverride?: Record<string, unknown>) {
   return prisma
 }
 
+function buildMockPrismaWithSnapshots() {
+  const mockTx = {
+    allocationRun: {
+      create: vi.fn().mockResolvedValue({ id: 'run-snap' }),
+    },
+    allocationResult: {
+      createMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+    transferEntry: {
+      createMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+    period: {
+      update: vi.fn().mockResolvedValue({}),
+      // No previous CLOSED period — budget falls back to zero PeriodData
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
+    costEntry: {
+      findMany: vi.fn().mockResolvedValue([
+        {
+          hours: new Decimal('10'),
+          amount: new Decimal('500'),
+          personnel: { homeHqId: 'hq-A', homeHq: { name: 'Alpha HQ' } },
+        },
+        {
+          hours: new Decimal('5'),
+          amount: new Decimal('200'),
+          personnel: { homeHqId: 'hq-B', homeHq: { name: 'Beta HQ' } },
+        },
+      ]),
+    },
+    // createMany returns count=3 (2 HQs + 1 enterprise row)
+    varianceSnapshot: {
+      createMany: vi.fn().mockResolvedValue({ count: 3 }),
+    },
+  }
+
+  const prisma = {
+    period: {
+      findUnique: vi.fn().mockResolvedValue({
+        id: 'period-1',
+        status: 'OPEN',
+      }),
+    },
+    $transaction: vi.fn(async (cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx)),
+    _tx: mockTx,
+  } as any
+
+  return prisma
+}
+
 describe('runCloseWorkflow', () => {
   describe('validation', () => {
     it('throws when period is not found', async () => {
@@ -111,6 +161,38 @@ describe('runCloseWorkflow', () => {
       const prisma = buildMockPrisma()
       const result = await runCloseWorkflow(prisma, 'period-1', 'STEP_DOWN')
       expect(result.status).toBe('CLOSED')
+    })
+  })
+
+  describe('VarianceSnapshot generation (REQ-PIPE-01)', () => {
+    it('returns snapshotCount = HQ count + enterprise row', async () => {
+      // 2 distinct HQs (hq-A, hq-B) + 1 enterprise row = 3
+      const prisma = buildMockPrismaWithSnapshots()
+      const result = await runCloseWorkflow(prisma, 'period-1', 'DIRECT')
+      expect(result.snapshotCount).toBe(3)
+    })
+
+    it('calls varianceSnapshot.createMany inside transaction', async () => {
+      const prisma = buildMockPrismaWithSnapshots()
+      await runCloseWorkflow(prisma, 'period-1', 'DIRECT')
+      expect(prisma._tx.varianceSnapshot.createMany).toHaveBeenCalledOnce()
+    })
+
+    it('createMany data includes enterprise scope row', async () => {
+      const prisma = buildMockPrismaWithSnapshots()
+      await runCloseWorkflow(prisma, 'period-1', 'DIRECT')
+      const [call] = prisma._tx.varianceSnapshot.createMany.mock.calls
+      const rows: Array<{ scope: string }> = call[0].data
+      const enterpriseRow = rows.find((r) => r.scope === 'enterprise')
+      expect(enterpriseRow).toBeDefined()
+    })
+
+    it('returns snapshotCount = 0 when narrow mock without varianceSnapshot', async () => {
+      // Standard buildMockPrisma() omits varianceSnapshot/costEntry/period.findFirst
+      // on the tx, so hasTxVariance returns false and snapshotCount stays 0.
+      const prisma = buildMockPrisma()
+      const result = await runCloseWorkflow(prisma, 'period-1', 'DIRECT')
+      expect(result.snapshotCount).toBe(0)
     })
   })
 

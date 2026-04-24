@@ -46,3 +46,7 @@ coverage/
 # Tooling lock files
 Interactive
 Working
+
+.vercel
+.env.vercel
+.env.vercel.*

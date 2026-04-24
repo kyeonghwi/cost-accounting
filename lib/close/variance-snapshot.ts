@@ -72,6 +72,7 @@ export async function createVarianceSnapshots(tx: VarianceTx, periodId: string):
 
   if (currentEntries.length === 0) return 0
 
+  // @AX:WARN: [AUTO] dual-pass aggregation — current and previous period loops must stay structurally symmetric; diverging field selection between the two findMany calls produces silent zero-baseline variance
   // Aggregate current period by hqId
   const hqCur = new Map<string, { name: string; revenue: Decimal; volume: Decimal }>()
   let entRev = new Decimal(0)
@@ -86,6 +87,7 @@ export async function createVarianceSnapshots(tx: VarianceTx, periodId: string):
     entVol = entVol.plus(e.hours)
   }
 
+  // @AX:NOTE: [AUTO] magic constant — 'CLOSED' period status; must match Period.status enum in schema; update if enum values change
   // Find most recent previous CLOSED period for budget baseline (REQ-PIPE-02)
   const prevPeriod = await tx.period.findFirst({
     where: { status: 'CLOSED', NOT: { id: periodId } },
@@ -118,7 +120,7 @@ export async function createVarianceSnapshots(tx: VarianceTx, periodId: string):
     const actual = toPeriodData(cur.revenue, cur.volume)
     const prevAgg = hqPrev.get(hqId)
     const budget = prevAgg ? toPeriodData(prevAgg.revenue, prevAgg.volume) : toPeriodData(new Decimal(0), new Decimal(0))
-    const c = decomposeVariance(actual, budget, actual)
+    const c = decomposeVariance(actual, budget, budget)
     rows.push({
       periodId,
       scope: cur.name,
@@ -130,10 +132,11 @@ export async function createVarianceSnapshots(tx: VarianceTx, periodId: string):
     })
   }
 
+  // @AX:NOTE: [AUTO] magic constant — 'enterprise' scope string; variance page filters by this exact value; keep in sync with query-side expectations
   // Enterprise-level aggregate row (REQ-PIPE-03: scope = 'enterprise')
   const entActual = toPeriodData(entRev, entVol)
   const entBudget = toPeriodData(prevEntRev, prevEntVol)
-  const ec = decomposeVariance(entActual, entBudget, entActual)
+  const ec = decomposeVariance(entActual, entBudget, entBudget)
   rows.push({
     periodId,
     scope: 'enterprise',
