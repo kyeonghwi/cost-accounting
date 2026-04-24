@@ -187,9 +187,8 @@ describe('VarianceSnapshot integration (REQ-PIPE-01)', () => {
   it('calls varianceSnapshot.createMany inside the same transaction', async () => {
     const prisma = makeMockPrismaFull()
     await runCloseWorkflow(prisma, 'period-2024-04', 'DIRECT' as AllocationMethod)
-    const base = prisma as unknown as ReturnType<typeof makeMockPrismaFull>
-    const createMany = (base as { varianceSnapshot: { createMany: ReturnType<typeof vi.fn> } })
-      .varianceSnapshot.createMany
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const createMany = (prisma as any).varianceSnapshot.createMany as ReturnType<typeof vi.fn>
     expect(createMany).toHaveBeenCalledTimes(1)
     const callArg = createMany.mock.calls[0][0] as { data: Array<{ scope: string }> }
     const enterpriseRow = callArg.data.find((row) => row.scope === 'enterprise')
